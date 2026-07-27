@@ -88,7 +88,7 @@ export function InvoiceForm({ invoice, onChange }: Props) {
   };
 
   return (
-    <div className="no-print space-y-6">
+    <div className="space-y-6">
       <Section title="Billed to">
         <TextInput
           label="Client name"

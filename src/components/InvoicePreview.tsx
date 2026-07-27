@@ -218,6 +218,39 @@ export function InvoicePreview({ invoice }: Props) {
           </div>
         </section>
 
+        {/* Payment details */}
+        <section className="mt-7">
+          <SectionRule title="Payment Details" />
+          <div className="mt-3 rounded border border-[#c9bda8] bg-[#efebe3] px-4 py-3 text-sm">
+            <dl className="grid gap-1 sm:grid-cols-2">
+              <div className="flex gap-2">
+                <dt className="text-stone-500">Account name:</dt>
+                <dd className="font-medium text-stone-800">
+                  {BUSINESS.bank.accountName}
+                </dd>
+              </div>
+              <div className="flex gap-2">
+                <dt className="text-stone-500">BSB:</dt>
+                <dd className="font-medium tabular-nums text-stone-800">
+                  {BUSINESS.bank.bsb}
+                </dd>
+              </div>
+              <div className="flex gap-2">
+                <dt className="text-stone-500">Account:</dt>
+                <dd className="font-medium tabular-nums text-stone-800">
+                  {BUSINESS.bank.accountNumber}
+                </dd>
+              </div>
+              <div className="flex gap-2">
+                <dt className="text-stone-500">Reference:</dt>
+                <dd className="font-semibold text-stone-800">
+                  {invoice.invoiceNumber.trim() || "Invoice number"}
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </section>
+
         {/* Recommendations */}
         {includedRecs.length > 0 && (
           <section className="mt-7">

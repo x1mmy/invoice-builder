@@ -5,12 +5,14 @@ import { InvoiceForm } from "@/components/InvoiceForm";
 import { InvoicePreview } from "@/components/InvoicePreview";
 import { BUSINESS } from "@/lib/business";
 import { createDefaultInvoice } from "@/lib/defaults";
+import { downloadInvoicePdf } from "@/lib/downloadPdf";
 import { clearDraft, loadDraft, saveDraft } from "@/lib/storage";
 import type { Invoice } from "@/lib/types";
 
 export function InvoiceBuilder() {
   const [invoice, setInvoice] = useState<Invoice>(createDefaultInvoice);
   const [hasHydrated, setHasHydrated] = useState(false);
+  const [savingPdf, setSavingPdf] = useState(false);
 
   useEffect(() => {
     const draft = loadDraft();
@@ -34,6 +36,21 @@ export function InvoiceBuilder() {
     setInvoice(createDefaultInvoice());
   };
 
+  const handleDownloadPdf = async () => {
+    if (savingPdf) return;
+    setSavingPdf(true);
+    try {
+      await downloadInvoicePdf(invoice.invoiceNumber);
+    } catch (err) {
+      console.error(err);
+      window.alert(
+        "Couldn’t save the PDF. Please try again, or use your browser’s Share menu.",
+      );
+    } finally {
+      setSavingPdf(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#e8ebe4]">
       <header className="no-print sticky top-0 z-20 border-b border-stone-300/60 bg-[#e8ebe4]/80 backdrop-blur-md">
@@ -54,10 +71,11 @@ export function InvoiceBuilder() {
             </button>
             <button
               type="button"
-              onClick={() => window.print()}
-              className="rounded-md bg-[#5f7a64] px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#4e6754]"
+              onClick={handleDownloadPdf}
+              disabled={savingPdf}
+              className="rounded-md bg-[#5f7a64] px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#4e6754] disabled:opacity-60"
             >
-              Download PDF
+              {savingPdf ? "Saving…" : "Download PDF"}
             </button>
           </div>
         </div>
@@ -73,10 +91,11 @@ export function InvoiceBuilder() {
             <p className="text-sm font-medium text-stone-600">Preview</p>
             <button
               type="button"
-              onClick={() => window.print()}
-              className="rounded-md bg-[#5f7a64] px-3 py-1.5 text-sm font-semibold text-white"
+              onClick={handleDownloadPdf}
+              disabled={savingPdf}
+              className="rounded-md bg-[#5f7a64] px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-60"
             >
-              Download PDF
+              {savingPdf ? "Saving…" : "Download PDF"}
             </button>
           </div>
           <InvoicePreview invoice={invoice} />

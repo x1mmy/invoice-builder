@@ -1,6 +1,6 @@
-# Radiant Rooms Invoicing
+# Radiant Rooms Co Invoicing
 
-Lean invoice builder for Radiant Rooms cleaning care home services. An Invoice is composed in the browser and captured as a PDF — there is no server-side record of jobs or payments.
+Lean invoice builder for Radiant Rooms Co cleaning care home services. An Invoice is composed in the browser and captured as a PDF — there is no server-side record of jobs or payments.
 
 ## Language
 
