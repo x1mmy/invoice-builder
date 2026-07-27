@@ -3,7 +3,7 @@ const NAME = "Radiant Rooms Co";
 export const BUSINESS = {
   name: NAME,
   legalName: "RADIANT ROOMS CO",
-  tagline: "Cleaning care home services",
+  logoSrc: "/logo.png",
   abn: "89 766 007 046",
   email: "Radiant.Rooms.Co1@gmail.com",
   mobile: "0432 806 679",

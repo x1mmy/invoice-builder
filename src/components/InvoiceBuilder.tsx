@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { InvoiceForm } from "@/components/InvoiceForm";
 import { InvoicePreview } from "@/components/InvoicePreview";
-import { BUSINESS } from "@/lib/business";
+import { Logo } from "@/components/Logo";
 import { createDefaultInvoice } from "@/lib/defaults";
 import { downloadInvoicePdf } from "@/lib/downloadPdf";
 import { clearDraft, loadDraft, saveDraft } from "@/lib/storage";
@@ -55,10 +55,8 @@ export function InvoiceBuilder() {
     <div className="min-h-screen bg-[#e8ebe4]">
       <header className="no-print sticky top-0 z-20 border-b border-stone-300/60 bg-[#e8ebe4]/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          <div>
-            <p className="font-[family-name:var(--font-display)] text-xl text-[#3d5244]">
-              {BUSINESS.name}
-            </p>
+          <div className="flex items-center gap-2.5">
+            <Logo className="h-10 w-auto object-contain" />
             <p className="text-xs text-stone-500">Invoice builder</p>
           </div>
           <div className="flex items-center gap-2">
