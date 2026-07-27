@@ -215,32 +215,36 @@ export function InvoicePreview({ invoice }: Props) {
         <section className="mt-4">
           <SectionRule title="Payment Details" />
           <div className="mt-2 rounded border border-[#c9bda8] bg-[#efebe3] px-3 py-2 text-sm leading-snug">
-            <dl className="grid gap-0.5 sm:grid-cols-2">
-              <div className="flex gap-2">
-                <dt className="text-stone-500">Account name:</dt>
-                <dd className="font-medium text-stone-800">
-                  {BUSINESS.bank.accountName}
-                </dd>
-              </div>
-              <div className="flex gap-2">
-                <dt className="text-stone-500">BSB:</dt>
-                <dd className="font-medium tabular-nums text-stone-800">
-                  {BUSINESS.bank.bsb}
-                </dd>
-              </div>
-              <div className="flex gap-2">
-                <dt className="text-stone-500">Account:</dt>
-                <dd className="font-medium tabular-nums text-stone-800">
-                  {BUSINESS.bank.accountNumber}
-                </dd>
-              </div>
-              <div className="flex gap-2">
-                <dt className="text-stone-500">Reference:</dt>
-                <dd className="font-semibold text-stone-800">
-                  {invoice.invoiceNumber.trim() || "Invoice number"}
-                </dd>
-              </div>
-            </dl>
+            <div className="grid gap-2 sm:grid-cols-2 sm:gap-6">
+              <dl className="space-y-0.5">
+                <div className="flex gap-2">
+                  <dt className="text-stone-500">BSB:</dt>
+                  <dd className="font-medium tabular-nums text-stone-800">
+                    {BUSINESS.bank.bsb}
+                  </dd>
+                </div>
+                <div className="flex gap-2">
+                  <dt className="text-stone-500">Account:</dt>
+                  <dd className="font-medium tabular-nums text-stone-800">
+                    {BUSINESS.bank.accountNumber}
+                  </dd>
+                </div>
+              </dl>
+              <dl className="space-y-0.5">
+                <div className="flex gap-2">
+                  <dt className="text-stone-500">Account name:</dt>
+                  <dd className="font-medium text-stone-800">
+                    {BUSINESS.bank.accountName}
+                  </dd>
+                </div>
+                <div className="flex gap-2">
+                  <dt className="text-stone-500">Reference:</dt>
+                  <dd className="font-semibold text-stone-800">
+                    {invoice.invoiceNumber.trim() || "Invoice number"}
+                  </dd>
+                </div>
+              </dl>
+            </div>
           </div>
         </section>
 
