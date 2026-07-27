@@ -1,36 +1,30 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Radiant Rooms — Invoice Builder
 
-## Getting Started
+Lean Next.js invoice builder for **Radiant Rooms**. Fill in the form, preview a styled HTML invoice, then download a PDF via the browser print dialog. No database — drafts soft-save in this browser’s `localStorage` only.
 
-First, run the development server:
+## Run locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Download PDF
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Fill in the invoice fields (preview updates live).
+2. Click **Download PDF**.
+3. In the print dialog, choose **Save as PDF** (Chrome/Edge) or **PDF** destination (Safari/Firefox).
 
-## Learn More
+Tip: enable “Background graphics” in the print dialog so sage/bronze colours print correctly.
 
-To learn more about Next.js, take a look at the following resources:
+## Deploy (Vercel)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Connect the repo to Vercel and deploy as a standard Next.js app. No environment variables required for v1.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Notes
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Drafts** are per-browser. Clearing site data or clicking **New invoice** removes the draft.
+- The PDF is the system of record — nothing is stored on a server.
+- Domain language: see [`CONTEXT.md`](CONTEXT.md). Architecture decisions: [`docs/adr/`](docs/adr/).
