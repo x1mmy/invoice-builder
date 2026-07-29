@@ -1,6 +1,6 @@
 # Radiant Rooms Co Invoicing
 
-Lean invoice builder for Radiant Rooms Co cleaning care home services. An Invoice is composed in the browser and captured as a PDF — there is no server-side record of jobs or payments.
+Invoice builder and books ledger for Radiant Rooms Co cleaning care home services. Compose an Invoice, download a PDF, and save it to Books. Track expenses and see profit (income − expenses) for the month, year, or all time.
 
 ## Language
 
@@ -25,9 +25,21 @@ A single priced row on the Invoice (labour, travel, supplies, or other), with se
 _Avoid_: Charge, fee row, product
 
 **Status**:
-The payment state shown on the Invoice: Due on receipt, Paid, Overdue, or Draft.
+The payment state shown on the Invoice: Due on receipt, Paid, Overdue, or Draft. Paid is set manually and does not control whether the amount counts as income.
 _Avoid_: State, payment status
 
 **Recommendation**:
 A short aftercare tip printed on the Invoice to suggest follow-up cleaning.
 _Avoid_: Tip, note, upsell
+
+**Books**:
+The ledger home showing Income, Expenses, and Profit for a period, with Invoices and Expenses tabs.
+_Avoid_: Dashboard, spreadsheet, accounting
+
+**Expense**:
+A simple cost row with date, description, and amount (AUD).
+_Avoid_: Outgoing, cost category, bill
+
+**Profit**:
+Income (saved invoice amounts) minus expenses for the selected period.
+_Avoid_: Margin, net, earnings

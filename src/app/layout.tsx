@@ -15,9 +15,9 @@ const sans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Radiant Rooms Co — Invoice Builder",
+  title: "Radiant Rooms Co — Books",
   description:
-    "Lean invoice builder for Radiant Rooms Co cleaning care home services.",
+    "Invoice builder and books ledger for Radiant Rooms Co cleaning care home services.",
 };
 
 export default function RootLayout({
