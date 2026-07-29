@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superseded by [0003](0003-supabase-books-ledger.md)
 
 ## Context
 
