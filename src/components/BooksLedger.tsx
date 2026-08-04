@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition, type FormEvent, type ReactNode } from "react";
-import { createExpense, deleteExpense } from "@/app/actions/expenses";
+import { createExpense, deleteExpense, updateExpense } from "@/app/actions/expenses";
 import { deleteInvoice, updateInvoiceStatus } from "@/app/actions/invoices";
 import type { BooksTotals, ExpenseRow, InvoiceRow } from "@/lib/books";
 import { formatMoney, formatDisplayDate } from "@/lib/calc";
@@ -41,6 +41,11 @@ export function BooksLedger({
   const [expDate, setExpDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [expDesc, setExpDesc] = useState("");
   const [expAmount, setExpAmount] = useState("");
+
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDate, setEditDate] = useState("");
+  const [editDesc, setEditDesc] = useState("");
+  const [editAmount, setEditAmount] = useState("");
 
   const setPeriod = (next: PeriodFilter) => {
     const params = new URLSearchParams();
@@ -115,6 +120,42 @@ export function BooksLedger({
         flash("Expense deleted.");
         router.refresh();
       }
+    });
+  };
+
+  const startEditExpense = (row: ExpenseRow) => {
+    setEditingId(row.id);
+    setEditDate(row.date);
+    setEditDesc(row.description);
+    setEditAmount(String(row.amount));
+  };
+
+  const cancelEditExpense = () => {
+    setEditingId(null);
+  };
+
+  const onSaveExpense = (e: FormEvent) => {
+    e.preventDefault();
+    if (editingId == null) return;
+    const savedDate = editDate;
+    const savedDesc = editDesc;
+    const savedAmount = editAmount;
+    startTransition(async () => {
+      const result = await updateExpense(editingId, {
+        date: savedDate,
+        description: savedDesc,
+        amount: Number(savedAmount),
+      });
+      if (!result.ok) {
+        flash(result.error);
+        setEditDate(savedDate);
+        setEditDesc(savedDesc);
+        setEditAmount(savedAmount);
+        return;
+      }
+      setEditingId(null);
+      flash("Expense updated.");
+      router.refresh();
     });
   };
 
@@ -345,30 +386,103 @@ export function BooksLedger({
           ) : (
             <SheetWithTotal label="Total expenses" value={totals.expenses}>
               <ul className="divide-y divide-stone-200/80">
-                {expenses.map((row) => (
-                  <li
-                    key={row.id}
-                    className="grid grid-cols-1 gap-2 px-4 py-3 sm:grid-cols-[6.5rem_minmax(0,1fr)_5.5rem_auto] sm:items-center sm:gap-3"
-                  >
-                    <p className="text-sm text-stone-500">
-                      {formatDisplayDate(row.date)}
-                    </p>
-                    <p className="min-w-0 break-words font-medium text-stone-800">
-                      {row.description}
-                    </p>
-                    <p className="break-all font-semibold tabular-nums text-stone-800 sm:text-right">
-                      {formatMoney(Number(row.amount))}
-                    </p>
-                    <button
-                      type="button"
-                      disabled={pending}
-                      onClick={() => onDeleteExpense(row)}
-                      className="min-h-11 justify-self-start rounded-md px-2 text-xs text-stone-500 hover:text-red-700 sm:min-h-9"
+                {expenses.map((row) =>
+                  editingId === row.id ? (
+                    <li key={row.id} className="px-4 py-3">
+                      <form
+                        onSubmit={onSaveExpense}
+                        className="grid gap-3 md:grid-cols-[1fr_2fr_1fr_auto_auto]"
+                      >
+                        <label className="min-w-0 space-y-1">
+                          <span className="text-xs font-medium text-stone-500">Date</span>
+                          <input
+                            type="date"
+                            required
+                            value={editDate}
+                            onChange={(e) => setEditDate(e.target.value)}
+                            className="w-full rounded-md border border-stone-300 px-3 py-2.5 text-sm"
+                          />
+                        </label>
+                        <label className="min-w-0 space-y-1">
+                          <span className="text-xs font-medium text-stone-500">
+                            Description
+                          </span>
+                          <input
+                            type="text"
+                            required
+                            value={editDesc}
+                            onChange={(e) => setEditDesc(e.target.value)}
+                            className="w-full rounded-md border border-stone-300 px-3 py-2.5 text-sm"
+                          />
+                        </label>
+                        <label className="min-w-0 space-y-1">
+                          <span className="text-xs font-medium text-stone-500">Amount</span>
+                          <input
+                            type="number"
+                            required
+                            min="0.01"
+                            step="0.01"
+                            value={editAmount}
+                            onChange={(e) => setEditAmount(e.target.value)}
+                            className="w-full rounded-md border border-stone-300 px-3 py-2.5 text-sm"
+                          />
+                        </label>
+                        <div className="flex items-end">
+                          <button
+                            type="submit"
+                            disabled={pending}
+                            className="w-full rounded-md bg-[#5f7a64] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60 md:w-auto"
+                          >
+                            Save
+                          </button>
+                        </div>
+                        <div className="flex items-end">
+                          <button
+                            type="button"
+                            disabled={pending}
+                            onClick={cancelEditExpense}
+                            className="w-full rounded-md border border-stone-300 px-4 py-2.5 text-sm font-semibold text-stone-600 hover:bg-stone-50 disabled:opacity-60 md:w-auto"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </form>
+                    </li>
+                  ) : (
+                    <li
+                      key={row.id}
+                      className="grid grid-cols-1 gap-2 px-4 py-3 sm:grid-cols-[6.5rem_minmax(0,1fr)_5.5rem_auto] sm:items-center sm:gap-3"
                     >
-                      Delete
-                    </button>
-                  </li>
-                ))}
+                      <p className="text-sm text-stone-500">
+                        {formatDisplayDate(row.date)}
+                      </p>
+                      <p className="min-w-0 break-words font-medium text-stone-800">
+                        {row.description}
+                      </p>
+                      <p className="break-all font-semibold tabular-nums text-stone-800 sm:text-right">
+                        {formatMoney(Number(row.amount))}
+                      </p>
+                      <div className="flex flex-wrap gap-1 sm:justify-end">
+                        <button
+                          type="button"
+                          disabled={pending}
+                          onClick={() => startEditExpense(row)}
+                          className="min-h-11 rounded-md px-2 text-xs text-stone-500 hover:text-stone-800 sm:min-h-9"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          disabled={pending}
+                          onClick={() => onDeleteExpense(row)}
+                          className="min-h-11 rounded-md px-2 text-xs text-stone-500 hover:text-red-700 sm:min-h-9"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </li>
+                  ),
+                )}
               </ul>
             </SheetWithTotal>
           )}
