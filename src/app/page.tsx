@@ -2,30 +2,52 @@ import { AppNav } from "@/components/AppNav";
 import { BooksLedger } from "@/components/BooksLedger";
 import { listExpenses } from "@/app/actions/expenses";
 import { listInvoices } from "@/app/actions/invoices";
-import { profit, sumAmounts, type PeriodFilter } from "@/lib/period";
+import { sumReceived } from "@/lib/books";
+import {
+  currentFyStartYear,
+  profit,
+  sumAmounts,
+  type PeriodFilter,
+} from "@/lib/period";
 
 type Props = {
-  searchParams: Promise<{ period?: string }>;
+  searchParams: Promise<{ period?: string; fyStart?: string }>;
 };
 
 function parsePeriod(value: string | undefined): PeriodFilter {
-  if (value === "year" || value === "all" || value === "month") return value;
-  return "month";
+  if (value === "year" || value === "all" || value === "month" || value === "fy") {
+    return value;
+  }
+  return "fy";
+}
+
+function parseFyStart(
+  period: PeriodFilter,
+  raw: string | undefined,
+  now = new Date(),
+): number | undefined {
+  if (period !== "fy") return undefined;
+  const n = raw ? Number(raw) : NaN;
+  if (Number.isInteger(n) && n >= 2000 && n <= 2100) return n;
+  return currentFyStartYear(now);
 }
 
 export default async function BooksPage({ searchParams }: Props) {
   const params = await searchParams;
   const period = parsePeriod(params.period);
+  const fyStartYear = parseFyStart(period, params.fyStart);
 
   const [invoices, expenses] = await Promise.all([
-    listInvoices(period),
-    listExpenses(period),
+    listInvoices(period, fyStartYear),
+    listExpenses(period, fyStartYear),
   ]);
 
   const income = sumAmounts(invoices);
+  const received = sumReceived(invoices);
   const expenseTotal = sumAmounts(expenses);
   const totals = {
     income,
+    received,
     expenses: expenseTotal,
     profit: profit(income, expenseTotal),
   };
@@ -35,6 +57,7 @@ export default async function BooksPage({ searchParams }: Props) {
       <AppNav />
       <BooksLedger
         period={period}
+        fyStartYear={fyStartYear ?? null}
         totals={totals}
         invoices={invoices}
         expenses={expenses}

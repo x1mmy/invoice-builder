@@ -13,6 +13,7 @@ type Tab = "invoices" | "expenses";
 
 type Props = {
   period: PeriodFilter;
+  fyStartYear: number | null;
   totals: BooksTotals;
   invoices: InvoiceRow[];
   expenses: ExpenseRow[];
@@ -24,7 +25,13 @@ const PERIODS: { id: PeriodFilter; label: string }[] = [
   { id: "all", label: "All time" },
 ];
 
-export function BooksLedger({ period, totals, invoices, expenses }: Props) {
+export function BooksLedger({
+  period,
+  fyStartYear: _fyStartYear,
+  totals,
+  invoices,
+  expenses,
+}: Props) {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("invoices");
   const [message, setMessage] = useState<string | null>(null);

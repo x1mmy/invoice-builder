@@ -6,9 +6,12 @@ import type { ExpenseRow } from "@/lib/books";
 import { periodRange, type PeriodFilter } from "@/lib/period";
 import { getSupabase } from "@/lib/supabase/server";
 
-export async function listExpenses(period: PeriodFilter): Promise<ExpenseRow[]> {
+export async function listExpenses(
+  period: PeriodFilter,
+  fyStartYear?: number,
+): Promise<ExpenseRow[]> {
   await requireAuth();
-  const { from, to } = periodRange(period);
+  const { from, to } = periodRange(period, { fyStartYear });
   let query = getSupabase()
     .from("expenses")
     .select("*")
