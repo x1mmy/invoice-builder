@@ -1,9 +1,27 @@
 import { describe, expect, it } from "vitest";
 import {
+  australianDateString,
+  civilPartsInTimeZone,
   currentFyStartYear,
   fyLabel,
   periodRange,
 } from "@/lib/period";
+
+describe("Australian civil date", () => {
+  const sydneyJulyMorning = new Date("2026-06-30T20:00:00.000Z");
+
+  it("extracts Sydney calendar parts across a UTC date boundary", () => {
+    expect(civilPartsInTimeZone(sydneyJulyMorning, "Australia/Sydney")).toEqual({
+      year: 2026,
+      month: 7,
+      day: 1,
+    });
+  });
+
+  it("formats the Sydney calendar date for date inputs", () => {
+    expect(australianDateString(sydneyJulyMorning)).toBe("2026-07-01");
+  });
+});
 
 describe("currentFyStartYear", () => {
   it("returns same calendar year on or after 1 July", () => {
@@ -14,6 +32,10 @@ describe("currentFyStartYear", () => {
   it("returns previous calendar year before 1 July", () => {
     expect(currentFyStartYear(new Date(2026, 5, 30))).toBe(2025); // Jun 30
     expect(currentFyStartYear(new Date(2026, 0, 1))).toBe(2025);
+  });
+
+  it("uses Sydney civil time when UTC is still 30 June", () => {
+    expect(currentFyStartYear(new Date("2026-06-30T20:00:00.000Z"))).toBe(2026);
   });
 });
 
@@ -48,5 +70,22 @@ describe("periodRange fy", () => {
       to: "2026-12-31",
     });
     expect(periodRange("all")).toEqual({ from: null, to: null });
+  });
+
+  it("uses Sydney civil month and year across a UTC date boundary", () => {
+    const now = new Date("2026-06-30T20:00:00.000Z");
+
+    expect(periodRange("month", { now })).toEqual({
+      from: "2026-07-01",
+      to: "2026-07-31",
+    });
+    expect(periodRange("year", { now })).toEqual({
+      from: "2026-01-01",
+      to: "2026-12-31",
+    });
+    expect(periodRange("fy", { now })).toEqual({
+      from: "2026-07-01",
+      to: "2027-06-30",
+    });
   });
 });

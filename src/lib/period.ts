@@ -7,11 +7,32 @@ export type PeriodRangeOptions = {
 
 type DateRange = { from: string | null; to: string | null };
 
+export function civilPartsInTimeZone(date: Date, timeZone: string) {
+  const parts = new Intl.DateTimeFormat("en-AU", {
+    timeZone,
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+  }).formatToParts(date);
+  const value = (type: Intl.DateTimeFormatPartTypes) =>
+    Number(parts.find((part) => part.type === type)?.value);
+
+  return {
+    year: value("year"),
+    month: value("month"),
+    day: value("day"),
+  };
+}
+
+export function australianDateString(date = new Date()): string {
+  const { year, month, day } = civilPartsInTimeZone(date, "Australia/Sydney");
+  return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
 /** Calendar year in which the Australian FY begins (1 July). */
 export function currentFyStartYear(now = new Date()): number {
-  const y = now.getFullYear();
-  const m = now.getMonth(); // 0-indexed; July = 6
-  return m >= 6 ? y : y - 1;
+  const { year, month } = civilPartsInTimeZone(now, "Australia/Sydney");
+  return month >= 7 ? year : year - 1;
 }
 
 /** e.g. fyStartYear 2025 → "FY 2025–26" */
@@ -31,8 +52,7 @@ export function periodRange(
     return { from: null, to: null };
   }
 
-  const y = now.getFullYear();
-  const m = now.getMonth();
+  const { year, month } = civilPartsInTimeZone(now, "Australia/Sydney");
 
   if (period === "fy") {
     const start = options.fyStartYear ?? currentFyStartYear(now);
@@ -44,17 +64,17 @@ export function periodRange(
 
   if (period === "year") {
     return {
-      from: `${y}-01-01`,
-      to: `${y}-12-31`,
+      from: `${year}-01-01`,
+      to: `${year}-12-31`,
     };
   }
 
   // month
-  const lastDay = new Date(y, m + 1, 0).getDate();
-  const mm = String(m + 1).padStart(2, "0");
+  const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const mm = String(month).padStart(2, "0");
   return {
-    from: `${y}-${mm}-01`,
-    to: `${y}-${mm}-${String(lastDay).padStart(2, "0")}`,
+    from: `${year}-${mm}-01`,
+    to: `${year}-${mm}-${String(lastDay).padStart(2, "0")}`,
   };
 }
 

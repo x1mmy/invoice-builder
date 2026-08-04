@@ -7,7 +7,7 @@ import { createExpense, deleteExpense, updateExpense } from "@/app/actions/expen
 import { deleteInvoice, updateInvoiceStatus } from "@/app/actions/invoices";
 import type { BooksTotals, ExpenseRow, InvoiceRow } from "@/lib/books";
 import { formatMoney, formatDisplayDate } from "@/lib/calc";
-import { fyLabel, type PeriodFilter } from "@/lib/period";
+import { australianDateString, fyLabel, type PeriodFilter } from "@/lib/period";
 
 type Tab = "invoices" | "expenses";
 
@@ -38,7 +38,7 @@ export function BooksLedger({
   const [message, setMessage] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
-  const [expDate, setExpDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [expDate, setExpDate] = useState(() => australianDateString());
   const [expDesc, setExpDesc] = useState("");
   const [expAmount, setExpAmount] = useState("");
 
@@ -268,7 +268,7 @@ export function BooksLedger({
             </h2>
             <Link
               href="/invoice/new"
-              className="rounded-md bg-[#5f7a64] px-3 py-2 text-sm font-semibold text-white"
+              className="inline-flex min-h-11 items-center rounded-md bg-[#5f7a64] px-3 py-2 text-sm font-semibold text-white"
             >
               New invoice
             </Link>
@@ -300,7 +300,7 @@ export function BooksLedger({
                       type="button"
                       disabled={pending}
                       onClick={() => onTogglePaid(row)}
-                      className={`min-h-11 justify-self-start rounded-full px-3 py-1 text-xs font-semibold sm:min-h-9 ${
+                      className={`min-h-11 justify-self-start rounded-full px-3 py-1 text-xs font-semibold ${
                         row.status === "Paid"
                           ? "bg-[#5f7a64]/15 text-[#3f5544]"
                           : "bg-amber-100 text-amber-900"
@@ -315,7 +315,7 @@ export function BooksLedger({
                       type="button"
                       disabled={pending}
                       onClick={() => onDeleteInvoice(row)}
-                      className="min-h-11 justify-self-start rounded-md px-2 text-xs text-stone-500 hover:text-red-700 sm:min-h-9"
+                      className="min-h-11 justify-self-start rounded-md px-2 text-xs text-stone-500 hover:text-red-700"
                       aria-label="Delete invoice"
                     >
                       Delete
@@ -342,7 +342,7 @@ export function BooksLedger({
                 required
                 value={expDate}
                 onChange={(e) => setExpDate(e.target.value)}
-                className="w-full rounded-md border border-stone-300 px-3 py-2.5 text-sm"
+                className="min-h-11 w-full rounded-md border border-stone-300 px-3 py-2.5 text-sm"
               />
             </label>
             <label className="min-w-0 space-y-1">
@@ -353,7 +353,7 @@ export function BooksLedger({
                 value={expDesc}
                 onChange={(e) => setExpDesc(e.target.value)}
                 placeholder="e.g. Cleaning supplies"
-                className="w-full rounded-md border border-stone-300 px-3 py-2.5 text-sm"
+                className="min-h-11 w-full rounded-md border border-stone-300 px-3 py-2.5 text-sm"
               />
             </label>
             <label className="min-w-0 space-y-1">
@@ -365,14 +365,14 @@ export function BooksLedger({
                 step="0.01"
                 value={expAmount}
                 onChange={(e) => setExpAmount(e.target.value)}
-                className="w-full rounded-md border border-stone-300 px-3 py-2.5 text-sm"
+                className="min-h-11 w-full rounded-md border border-stone-300 px-3 py-2.5 text-sm"
               />
             </label>
             <div className="flex items-end">
               <button
                 type="submit"
                 disabled={pending}
-                className="w-full rounded-md bg-[#5f7a64] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60 md:w-auto"
+                className="min-h-11 w-full rounded-md bg-[#5f7a64] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60 md:w-auto"
               >
                 Save
               </button>
@@ -400,7 +400,7 @@ export function BooksLedger({
                             required
                             value={editDate}
                             onChange={(e) => setEditDate(e.target.value)}
-                            className="w-full rounded-md border border-stone-300 px-3 py-2.5 text-sm"
+                            className="min-h-11 w-full rounded-md border border-stone-300 px-3 py-2.5 text-sm"
                           />
                         </label>
                         <label className="min-w-0 space-y-1">
@@ -412,7 +412,7 @@ export function BooksLedger({
                             required
                             value={editDesc}
                             onChange={(e) => setEditDesc(e.target.value)}
-                            className="w-full rounded-md border border-stone-300 px-3 py-2.5 text-sm"
+                            className="min-h-11 w-full rounded-md border border-stone-300 px-3 py-2.5 text-sm"
                           />
                         </label>
                         <label className="min-w-0 space-y-1">
@@ -424,14 +424,14 @@ export function BooksLedger({
                             step="0.01"
                             value={editAmount}
                             onChange={(e) => setEditAmount(e.target.value)}
-                            className="w-full rounded-md border border-stone-300 px-3 py-2.5 text-sm"
+                            className="min-h-11 w-full rounded-md border border-stone-300 px-3 py-2.5 text-sm"
                           />
                         </label>
                         <div className="flex items-end">
                           <button
                             type="submit"
                             disabled={pending}
-                            className="w-full rounded-md bg-[#5f7a64] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60 md:w-auto"
+                            className="min-h-11 w-full rounded-md bg-[#5f7a64] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60 md:w-auto"
                           >
                             Save
                           </button>
@@ -441,7 +441,7 @@ export function BooksLedger({
                             type="button"
                             disabled={pending}
                             onClick={cancelEditExpense}
-                            className="w-full rounded-md border border-stone-300 px-4 py-2.5 text-sm font-semibold text-stone-600 hover:bg-stone-50 disabled:opacity-60 md:w-auto"
+                            className="min-h-11 w-full rounded-md border border-stone-300 px-4 py-2.5 text-sm font-semibold text-stone-600 hover:bg-stone-50 disabled:opacity-60 md:w-auto"
                           >
                             Cancel
                           </button>
@@ -467,7 +467,7 @@ export function BooksLedger({
                           type="button"
                           disabled={pending}
                           onClick={() => startEditExpense(row)}
-                          className="min-h-11 rounded-md px-2 text-xs text-stone-500 hover:text-stone-800 sm:min-h-9"
+                          className="min-h-11 rounded-md px-2 text-xs text-stone-500 hover:text-stone-800"
                         >
                           Edit
                         </button>
@@ -475,7 +475,7 @@ export function BooksLedger({
                           type="button"
                           disabled={pending}
                           onClick={() => onDeleteExpense(row)}
-                          className="min-h-11 rounded-md px-2 text-xs text-stone-500 hover:text-red-700 sm:min-h-9"
+                          className="min-h-11 rounded-md px-2 text-xs text-stone-500 hover:text-red-700"
                         >
                           Delete
                         </button>

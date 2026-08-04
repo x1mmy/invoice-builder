@@ -41,7 +41,7 @@ Sum of saved invoice amounts in the selected period. Counts when the invoice is 
 _Avoid_: Revenue, turnover
 
 **Received**:
-Sum of invoice amounts with status Paid in the selected period.
+Sum of invoices dated in the selected period that are marked Paid. This uses the invoice date, not the payment date.
 _Avoid_: Cash, collected, cleared
 
 **Financial year (FY)**:
