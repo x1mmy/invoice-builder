@@ -1,15 +1,46 @@
-export type PeriodFilter = "month" | "year" | "all";
+export type PeriodFilter = "month" | "fy" | "year" | "all";
+
+export type PeriodRangeOptions = {
+  now?: Date;
+  fyStartYear?: number;
+};
 
 type DateRange = { from: string | null; to: string | null };
 
+/** Calendar year in which the Australian FY begins (1 July). */
+export function currentFyStartYear(now = new Date()): number {
+  const y = now.getFullYear();
+  const m = now.getMonth(); // 0-indexed; July = 6
+  return m >= 6 ? y : y - 1;
+}
+
+/** e.g. fyStartYear 2025 → "FY 2025–26" */
+export function fyLabel(fyStartYear: number): string {
+  const end = String((fyStartYear + 1) % 100).padStart(2, "0");
+  return `FY ${fyStartYear}–${end}`;
+}
+
 /** Inclusive ISO date bounds (YYYY-MM-DD) for the selected period. */
-export function periodRange(period: PeriodFilter, now = new Date()): DateRange {
+export function periodRange(
+  period: PeriodFilter,
+  options: PeriodRangeOptions = {},
+): DateRange {
+  const now = options.now ?? new Date();
+
   if (period === "all") {
     return { from: null, to: null };
   }
 
   const y = now.getFullYear();
-  const m = now.getMonth(); // 0-indexed
+  const m = now.getMonth();
+
+  if (period === "fy") {
+    const start = options.fyStartYear ?? currentFyStartYear(now);
+    return {
+      from: `${start}-07-01`,
+      to: `${start + 1}-06-30`,
+    };
+  }
 
   if (period === "year") {
     return {
@@ -18,6 +49,7 @@ export function periodRange(period: PeriodFilter, now = new Date()): DateRange {
     };
   }
 
+  // month
   const lastDay = new Date(y, m + 1, 0).getDate();
   const mm = String(m + 1).padStart(2, "0");
   return {
