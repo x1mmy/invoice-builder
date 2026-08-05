@@ -8,9 +8,12 @@ import { periodRange, type PeriodFilter } from "@/lib/period";
 import { getSupabase } from "@/lib/supabase/server";
 import type { Invoice, InvoiceStatus } from "@/lib/types";
 
-export async function listInvoices(period: PeriodFilter): Promise<InvoiceRow[]> {
+export async function listInvoices(
+  period: PeriodFilter,
+  fyStartYear?: number,
+): Promise<InvoiceRow[]> {
   await requireAuth();
-  const { from, to } = periodRange(period);
+  const { from, to } = periodRange(period, { fyStartYear });
   let query = getSupabase()
     .from("invoices")
     .select("*")

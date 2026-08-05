@@ -1,6 +1,6 @@
 # Radiant Rooms Co Invoicing
 
-Invoice builder and books ledger for Radiant Rooms Co cleaning care home services. Compose an Invoice, download a PDF, and save it to Books. Track expenses and see profit (income − expenses) for the month, year, or all time.
+Invoice builder and books ledger for Radiant Rooms Co cleaning care home services. Compose an Invoice, download a PDF, and save it to Books. Track expenses and see profit (Invoiced − Expenses) for the selected period.
 
 ## Language
 
@@ -33,13 +33,25 @@ A short aftercare tip printed on the Invoice to suggest follow-up cleaning.
 _Avoid_: Tip, note, upsell
 
 **Books**:
-The ledger home showing Income, Expenses, and Profit for a period, with Invoices and Expenses tabs.
+The ledger home for the business: hero **Profit** for the selected period, with **Invoiced**, **Received**, and **Expenses** as supporting figures. Period choices: This month, This FY (default), Calendar year, or All time. Invoices and Expenses tabs with period totals in sheet footers; expenses can be edited.
 _Avoid_: Dashboard, spreadsheet, accounting
+
+**Invoiced**:
+Sum of saved invoice amounts in the selected period. Counts when the invoice is saved.
+_Avoid_: Revenue, turnover
+
+**Received**:
+Sum of invoices dated in the selected period that are marked Paid. This uses the invoice date, not the payment date.
+_Avoid_: Cash, collected, cleared
+
+**Financial year (FY)**:
+Australian FY 1 July – 30 June, labelled e.g. FY 2025–26. Default Books period.
+_Avoid_: Tax year (unless talking to accountant informally)
 
 **Expense**:
 A simple cost row with date, description, and amount (AUD).
 _Avoid_: Outgoing, cost category, bill
 
 **Profit**:
-Income (saved invoice amounts) minus expenses for the selected period.
+Invoiced minus Expenses for the selected period (Paid status does not change Profit).
 _Avoid_: Margin, net, earnings

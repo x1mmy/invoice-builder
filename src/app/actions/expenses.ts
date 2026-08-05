@@ -4,11 +4,15 @@ import { revalidatePath } from "next/cache";
 import { requireAuth } from "@/lib/auth";
 import type { ExpenseRow } from "@/lib/books";
 import { periodRange, type PeriodFilter } from "@/lib/period";
+import { parseExpenseInput } from "@/lib/expense-input";
 import { getSupabase } from "@/lib/supabase/server";
 
-export async function listExpenses(period: PeriodFilter): Promise<ExpenseRow[]> {
+export async function listExpenses(
+  period: PeriodFilter,
+  fyStartYear?: number,
+): Promise<ExpenseRow[]> {
   await requireAuth();
-  const { from, to } = periodRange(period);
+  const { from, to } = periodRange(period, { fyStartYear });
   let query = getSupabase()
     .from("expenses")
     .select("*")
@@ -30,16 +34,10 @@ export async function createExpense(input: {
 }): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
     await requireAuth();
-    const amount = Math.round(Number(input.amount) * 100) / 100;
-    if (!input.date || !input.description.trim() || !(amount > 0)) {
-      return { ok: false, error: "Date, description, and amount are required." };
-    }
+    const parsed = parseExpenseInput(input);
+    if (!parsed.ok) return parsed;
 
-    const { error } = await getSupabase().from("expenses").insert({
-      date: input.date,
-      description: input.description.trim(),
-      amount,
-    });
+    const { error } = await getSupabase().from("expenses").insert(parsed.data);
 
     if (error) return { ok: false, error: error.message };
     revalidatePath("/");
@@ -48,6 +46,31 @@ export async function createExpense(input: {
     return {
       ok: false,
       error: err instanceof Error ? err.message : "Couldn’t save expense.",
+    };
+  }
+}
+
+export async function updateExpense(
+  id: string,
+  input: { date: string; description: string; amount: number },
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  try {
+    await requireAuth();
+    const parsed = parseExpenseInput(input);
+    if (!parsed.ok) return parsed;
+
+    const { error } = await getSupabase()
+      .from("expenses")
+      .update(parsed.data)
+      .eq("id", id);
+
+    if (error) return { ok: false, error: error.message };
+    revalidatePath("/");
+    return { ok: true };
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : "Couldn’t update expense.",
     };
   }
 }
