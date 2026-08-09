@@ -1,4 +1,5 @@
 import { BUSINESS } from "./business";
+import { prepareCloneForHtml2Canvas } from "./pdfSanitize";
 
 function buildFilename(invoiceNumber: string): string {
   const slug = BUSINESS.name.replace(/\s+/g, "-");
@@ -26,6 +27,10 @@ export async function downloadInvoicePdf(invoiceNumber: string): Promise<void> {
     useCORS: true,
     backgroundColor: "#f7f5f0",
     logging: false,
+    // Tailwind v4 → lab/oklab computed colors crash html2canvas; rewrite clone.
+    onclone: (_clonedDoc, clonedEl) => {
+      prepareCloneForHtml2Canvas(clonedEl);
+    },
   });
 
   const imgData = canvas.toDataURL("image/png");

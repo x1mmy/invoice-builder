@@ -17,6 +17,18 @@ type Props = {
   initialInvoice?: Invoice;
 };
 
+type Toast = {
+  message: string;
+  detail?: string;
+  tone: "ok" | "error";
+};
+
+function technicalMessage(err: unknown): string {
+  if (err instanceof Error && err.message.trim()) return err.message.trim();
+  if (typeof err === "string" && err.trim()) return err.trim();
+  return "Unknown error";
+}
+
 export function InvoiceBuilder({ invoiceId, initialInvoice }: Props) {
   const router = useRouter();
   const [invoice, setInvoice] = useState<Invoice>(
@@ -25,7 +37,7 @@ export function InvoiceBuilder({ invoiceId, initialInvoice }: Props) {
   const [hasHydrated, setHasHydrated] = useState(Boolean(initialInvoice));
   const [savingPdf, setSavingPdf] = useState(false);
   const [savedId, setSavedId] = useState<string | undefined>(invoiceId);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<Toast | null>(null);
   const [pending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -42,9 +54,22 @@ export function InvoiceBuilder({ invoiceId, initialInvoice }: Props) {
     saveDraft(invoice);
   }, [invoice, hasHydrated, initialInvoice]);
 
-  const flash = (text: string) => {
-    setToast(text);
-    window.setTimeout(() => setToast(null), 4000);
+  useEffect(() => {
+    if (!toast) return;
+    const ms = toast.tone === "error" ? 10000 : 4000;
+    const id = window.setTimeout(() => setToast(null), ms);
+    return () => window.clearTimeout(id);
+  }, [toast]);
+
+  const flash = (
+    message: string,
+    options?: { detail?: string; tone?: Toast["tone"] },
+  ) => {
+    setToast({
+      message,
+      detail: options?.detail,
+      tone: options?.tone ?? "ok",
+    });
   };
 
   const handleNew = () => {
@@ -62,7 +87,10 @@ export function InvoiceBuilder({ invoiceId, initialInvoice }: Props) {
       await downloadInvoicePdf(invoice.invoiceNumber);
     } catch (err) {
       console.error(err);
-      flash("Couldn’t save the PDF. Please try again.");
+      flash("Couldn’t download the PDF. Please try again.", {
+        detail: technicalMessage(err),
+        tone: "error",
+      });
     } finally {
       setSavingPdf(false);
     }
@@ -72,7 +100,7 @@ export function InvoiceBuilder({ invoiceId, initialInvoice }: Props) {
     startTransition(async () => {
       const result = await saveInvoice(invoice, savedId);
       if (!result.ok) {
-        flash(result.error);
+        flash(result.error, { tone: "error" });
         return;
       }
       setSavedId(result.id);
@@ -92,7 +120,7 @@ export function InvoiceBuilder({ invoiceId, initialInvoice }: Props) {
     startTransition(async () => {
       const result = await deleteInvoice(savedId);
       if (!result.ok) {
-        flash(result.error);
+        flash(result.error, { tone: "error" });
         return;
       }
       clearDraft();
@@ -157,12 +185,19 @@ export function InvoiceBuilder({ invoiceId, initialInvoice }: Props) {
       </div>
 
       {toast ? (
-        <p
-          className="no-print mx-auto max-w-[1600px] px-4 pt-3 text-sm text-stone-700 sm:px-6"
-          role="status"
+        <div
+          className={`no-print mx-auto max-w-[1600px] px-4 pt-3 sm:px-6 ${
+            toast.tone === "error" ? "text-red-800" : "text-stone-700"
+          }`}
+          role={toast.tone === "error" ? "alert" : "status"}
         >
-          {toast}
-        </p>
+          <p className="text-sm font-medium">{toast.message}</p>
+          {toast.detail ? (
+            <p className="mt-1 font-mono text-xs break-words text-stone-500">
+              {toast.detail}
+            </p>
+          ) : null}
+        </div>
       ) : null}
 
       <main className="mx-auto grid max-w-[1600px] gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(320px,420px)_1fr] lg:items-start">
