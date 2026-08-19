@@ -53,7 +53,7 @@ A simple cost row with date, description, and amount (AUD).
 _Avoid_: Outgoing, cost category, bill
 
 **Cash job**:
-A completed job paid in cash (not invoiced), logged on **Cash jobs** (`/cash-jobs`) with date, job details, breakdown, total hours, hourly rate, and amount (hours × rate). Counts toward Profit and has its own supporting figure on Books; it does not change Invoiced or Received.
+A completed job paid in cash (not invoiced), logged on **Cash jobs** (`/cash-jobs`) with date, job details, breakdown, total hours, hourly rate, other fees/charges, and amount (hours × rate + other fees). Counts toward Profit and has its own supporting figure on Books; it does not change Invoiced or Received.
 _Avoid_: Cash sale, walk-in, uninvoiced income
 
 **Profit**:

@@ -24,7 +24,14 @@ export async function listCashJobs(
 
   const { data, error } = await query;
   if (error) throw new Error(error.message);
-  return (data ?? []) as CashJobRow[];
+  return (data ?? []).map((row) => normalizeCashJobRow(row as CashJobRow));
+}
+
+function normalizeCashJobRow(row: CashJobRow): CashJobRow {
+  return {
+    ...row,
+    extra_charges: Array.isArray(row.extra_charges) ? row.extra_charges : [],
+  };
 }
 
 export async function createCashJob(

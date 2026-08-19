@@ -1,4 +1,5 @@
 import { sumAmounts } from "@/lib/period";
+import type { CashJobCharge } from "@/lib/cash-job-input";
 import type { Invoice, InvoiceStatus } from "@/lib/types";
 
 export type InvoiceRow = {
@@ -28,6 +29,7 @@ export type CashJobRow = {
   breakdown: string;
   hours: number;
   rate: number;
+  extra_charges: CashJobCharge[];
   amount: number;
   created_at: string;
 };

@@ -40,6 +40,7 @@ create table if not exists public.cash_jobs (
   breakdown text not null default '',
   hours numeric(8, 2) not null default 0,
   rate numeric(12, 2) not null default 0,
+  extra_charges jsonb not null default '[]'::jsonb,
   amount numeric(12, 2) not null default 0,
   created_at timestamptz not null default now()
 );
@@ -50,6 +51,7 @@ create index if not exists cash_jobs_date_idx on public.cash_jobs (date desc);
 alter table public.cash_jobs add column if not exists breakdown text not null default '';
 alter table public.cash_jobs add column if not exists hours numeric(8, 2) not null default 0;
 alter table public.cash_jobs add column if not exists rate numeric(12, 2) not null default 0;
+alter table public.cash_jobs add column if not exists extra_charges jsonb not null default '[]'::jsonb;
 
 -- RLS on (defense in depth). App uses the secret key (bypasses RLS).
 alter table public.invoices enable row level security;
@@ -61,4 +63,4 @@ alter table public.cash_jobs enable row level security;
 
 comment on table public.invoices is 'Saved invoices; amount is income as soon as saved; Paid is manual status';
 comment on table public.expenses is 'Simple expense rows: date, description, amount';
-comment on table public.cash_jobs is 'Cash jobs not invoiced: date, job details, breakdown, hours, rate, amount';
+comment on table public.cash_jobs is 'Cash jobs not invoiced: date, job details, breakdown, hours, rate, extra charges, amount';
