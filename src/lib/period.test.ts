@@ -5,6 +5,7 @@ import {
   currentFyStartYear,
   fyLabel,
   periodRange,
+  profit,
 } from "@/lib/period";
 
 describe("Australian civil date", () => {
@@ -87,5 +88,15 @@ describe("periodRange fy", () => {
       from: "2026-07-01",
       to: "2027-06-30",
     });
+  });
+});
+
+describe("profit", () => {
+  it("is invoiced minus expenses when there are no cash jobs", () => {
+    expect(profit(899, 387.74)).toBe(511.26);
+  });
+
+  it("adds cash jobs to profit", () => {
+    expect(profit(899, 387.74, 80)).toBe(591.26);
   });
 });

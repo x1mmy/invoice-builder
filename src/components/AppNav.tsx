@@ -7,6 +7,7 @@ import { Logo } from "@/components/Logo";
 
 const links = [
   { href: "/", label: "Books" },
+  { href: "/cash-jobs", label: "Cash jobs" },
   { href: "/invoice/new", label: "New invoice" },
 ] as const;
 
@@ -26,7 +27,9 @@ export function AppNav() {
             const active =
               link.href === "/"
                 ? pathname === "/"
-                : pathname.startsWith("/invoice");
+                : link.href.startsWith("/invoice")
+                  ? pathname.startsWith("/invoice")
+                  : pathname === link.href || pathname.startsWith(`${link.href}/`);
             return (
               <Link
                 key={link.href}

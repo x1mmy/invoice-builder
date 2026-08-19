@@ -1,5 +1,6 @@
 import { AppNav } from "@/components/AppNav";
 import { BooksLedger } from "@/components/BooksLedger";
+import { listCashJobs } from "@/app/actions/cash-jobs";
 import { listExpenses } from "@/app/actions/expenses";
 import { listInvoices } from "@/app/actions/invoices";
 import { sumReceived } from "@/lib/books";
@@ -37,19 +38,22 @@ export default async function BooksPage({ searchParams }: Props) {
   const period = parsePeriod(params.period);
   const fyStartYear = parseFyStart(period, params.fyStart);
 
-  const [invoices, expenses] = await Promise.all([
+  const [invoices, expenses, cashJobs] = await Promise.all([
     listInvoices(period, fyStartYear),
     listExpenses(period, fyStartYear),
+    listCashJobs(period, fyStartYear),
   ]);
 
   const income = sumAmounts(invoices);
   const received = sumReceived(invoices);
   const expenseTotal = sumAmounts(expenses);
+  const cashJobTotal = sumAmounts(cashJobs);
   const totals = {
     income,
     received,
     expenses: expenseTotal,
-    profit: profit(income, expenseTotal),
+    cashJobs: cashJobTotal,
+    profit: profit(income, expenseTotal, cashJobTotal),
   };
 
   return (

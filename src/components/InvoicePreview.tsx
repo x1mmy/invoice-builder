@@ -82,8 +82,8 @@ export function InvoicePreview({ invoice }: Props) {
         </div>
 
         {/* Billed to + Service details */}
-        <div className="mt-3 grid gap-2 sm:grid-cols-2">
-          <div className="rounded border border-[#c9bda8] bg-[#efebe3] px-3 py-2.5">
+        <div className="mt-3 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+          <div className="min-w-0 rounded border border-[#c9bda8] bg-[#efebe3] px-3 py-2.5">
             <p className="text-[10px] font-semibold tracking-[0.18em] text-[#5f7a64] uppercase">
               Billed to
             </p>
@@ -111,7 +111,7 @@ export function InvoicePreview({ invoice }: Props) {
                 </span>
               </p>
               {summary && (
-                <p className="text-stone-600">
+                <p className="text-stone-600 sm:whitespace-nowrap">
                   <span className="text-stone-500">Duration: </span>
                   {summary}
                 </p>

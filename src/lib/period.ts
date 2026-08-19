@@ -83,6 +83,11 @@ export function sumAmounts(rows: { amount: number | string }[]): number {
   return Math.round(total * 100) / 100;
 }
 
-export function profit(income: number, expenses: number): number {
-  return Math.round((income - expenses) * 100) / 100;
+/** Invoiced + cash jobs − expenses. Paid status does not change profit. */
+export function profit(
+  income: number,
+  expenses: number,
+  cashJobs = 0,
+): number {
+  return Math.round((income + cashJobs - expenses) * 100) / 100;
 }

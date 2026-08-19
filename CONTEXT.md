@@ -1,6 +1,6 @@
 # Radiant Rooms Co Invoicing
 
-Invoice builder and books ledger for Radiant Rooms Co cleaning care home services. Compose an Invoice, download a PDF, and save it to Books. Track expenses and see profit (Invoiced − Expenses) for the selected period.
+Invoice builder and books ledger for Radiant Rooms Co cleaning care home services. Compose an Invoice, download a PDF, and save it to Books. Track expenses and cash jobs and see profit (Invoiced + Cash jobs − Expenses) for the selected period.
 
 ## Language
 
@@ -33,7 +33,7 @@ A short aftercare tip printed on the Invoice to suggest follow-up cleaning.
 _Avoid_: Tip, note, upsell
 
 **Books**:
-The ledger home for the business: hero **Profit** for the selected period, with **Invoiced**, **Received**, and **Expenses** as supporting figures. Period choices: This month, This FY (default), Calendar year, or All time. Invoices and Expenses tabs with period totals in sheet footers; expenses can be edited.
+The ledger home for the business: hero **Profit** for the selected period, with **Invoiced**, **Received**, **Expenses**, and **Cash jobs** as supporting figures. Period choices: This month, This FY (default), Calendar year, or All time. Invoices and Expenses tabs with period totals in sheet footers; expenses can be edited. Cash jobs are logged on their own page.
 _Avoid_: Dashboard, spreadsheet, accounting
 
 **Invoiced**:
@@ -52,6 +52,10 @@ _Avoid_: Tax year (unless talking to accountant informally)
 A simple cost row with date, description, and amount (AUD).
 _Avoid_: Outgoing, cost category, bill
 
+**Cash job**:
+A completed job paid in cash (not invoiced), logged on **Cash jobs** (`/cash-jobs`) with date, job details, breakdown, total hours, hourly rate, and amount (hours × rate). Counts toward Profit and has its own supporting figure on Books; it does not change Invoiced or Received.
+_Avoid_: Cash sale, walk-in, uninvoiced income
+
 **Profit**:
-Invoiced minus Expenses for the selected period (Paid status does not change Profit).
+Invoiced plus Cash jobs minus Expenses for the selected period (Paid status does not change Profit).
 _Avoid_: Margin, net, earnings

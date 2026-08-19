@@ -21,10 +21,22 @@ export type ExpenseRow = {
   created_at: string;
 };
 
+export type CashJobRow = {
+  id: string;
+  date: string;
+  description: string;
+  breakdown: string;
+  hours: number;
+  rate: number;
+  amount: number;
+  created_at: string;
+};
+
 export type BooksTotals = {
   income: number;
   received: number;
   expenses: number;
+  cashJobs: number;
   profit: number;
 };
 

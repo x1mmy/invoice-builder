@@ -51,10 +51,10 @@ export function serviceSummary(details: ServiceDetails): string {
 
   const meta: string[] = [];
   if (details.hoursPerStaff !== "") {
-    meta.push(`${details.hoursPerStaff} hours per staff`);
+    meta.push(`${details.hoursPerStaff}\u00A0hours per staff`);
   }
   if (details.staffCount !== "") {
-    meta.push(`${details.staffCount} staff`);
+    meta.push(`${details.staffCount}\u00A0staff`);
   }
   if (details.breakMinutes !== "" && details.breakMinutes > 0) {
     meta.push(`${details.breakMinutes}min break`);
