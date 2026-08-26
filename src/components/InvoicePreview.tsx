@@ -51,10 +51,12 @@ export function InvoicePreview({ invoice }: Props) {
                 <dt className="text-stone-500">Invoice Date:</dt>
                 <dd>{formatDisplayDate(invoice.invoiceDate) || "—"}</dd>
               </div>
-              <div className="flex justify-center gap-2 sm:justify-end">
-                <dt className="text-stone-500">Due Date:</dt>
-                <dd>{formatDisplayDate(invoice.dueDate) || "—"}</dd>
-              </div>
+              {invoice.status === "Due by" && invoice.dueDate ? (
+                <div className="flex justify-center gap-2 sm:justify-end">
+                  <dt className="text-stone-500">Due Date:</dt>
+                  <dd>{formatDisplayDate(invoice.dueDate)}</dd>
+                </div>
+              ) : null}
               <div className="flex justify-center gap-2 sm:justify-end">
                 <dt className="text-stone-500">Job Date:</dt>
                 <dd>{formatDisplayDate(invoice.jobDate) || "—"}</dd>
@@ -278,7 +280,7 @@ export function InvoicePreview({ invoice }: Props) {
             </p>
           </div>
           <p className="mt-3 text-center text-[10px] leading-snug text-stone-500">
-            {paymentNoteForDueDate(invoice.dueDate)}
+            {paymentNoteForDueDate(invoice.status, invoice.dueDate)}
           </p>
         </footer>
       </div>

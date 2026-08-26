@@ -1,4 +1,5 @@
 import { formatDisplayDate } from "./calc";
+import type { InvoiceStatus } from "./types";
 
 const NAME = "Radiant Rooms Co";
 
@@ -21,8 +22,11 @@ export const BUSINESS = {
     "Payment is due upon receipt. Please use the invoice number as your payment reference. For questions contact us via the email or mobile above.",
 } as const;
 
-export function paymentNoteForDueDate(dueDate: string): string {
-  if (!dueDate) return BUSINESS.paymentNote;
+export function paymentNoteForDueDate(
+  status: InvoiceStatus,
+  dueDate: string,
+): string {
+  if (status !== "Due by" || !dueDate) return BUSINESS.paymentNote;
   return BUSINESS.paymentNote.replace(
     "Payment is due upon receipt.",
     `Payment is due by ${formatDisplayDate(dueDate)}.`,

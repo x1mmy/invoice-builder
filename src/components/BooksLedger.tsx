@@ -12,6 +12,7 @@ import {
 } from "@/components/DatedAmountPanel";
 import type { BooksTotals, ExpenseRow, InvoiceRow } from "@/lib/books";
 import { formatMoney, formatDisplayDate } from "@/lib/calc";
+import { unpaidStatusAfterPaid } from "@/lib/defaults";
 import { fyLabel, type PeriodFilter } from "@/lib/period";
 
 type Tab = "invoices" | "expenses";
@@ -73,7 +74,8 @@ export function BooksLedger({
   };
 
   const onTogglePaid = (row: InvoiceRow) => {
-    const next = row.status === "Paid" ? "Due on receipt" : "Paid";
+    const next =
+      row.status === "Paid" ? unpaidStatusAfterPaid(row.payload) : "Paid";
     startTransition(async () => {
       const result = await updateInvoiceStatus(row.id, next);
       if (!result.ok) flash(result.error);

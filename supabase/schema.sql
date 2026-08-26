@@ -13,7 +13,7 @@ create table if not exists public.invoices (
   client_name text not null default '',
   amount numeric(12, 2) not null default 0,
   status text not null default 'Due on receipt'
-    check (status in ('Draft', 'Due on receipt', 'Paid', 'Overdue')),
+    check (status in ('Draft', 'Due on receipt', 'Due by', 'Paid', 'Overdue')),
   payload jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
 );
@@ -52,6 +52,11 @@ alter table public.cash_jobs add column if not exists breakdown text not null de
 alter table public.cash_jobs add column if not exists hours numeric(8, 2) not null default 0;
 alter table public.cash_jobs add column if not exists rate numeric(12, 2) not null default 0;
 alter table public.cash_jobs add column if not exists extra_charges jsonb not null default '[]'::jsonb;
+
+-- Allow Due by (existing DBs still have the old status check)
+alter table public.invoices drop constraint if exists invoices_status_check;
+alter table public.invoices add constraint invoices_status_check
+  check (status in ('Draft', 'Due on receipt', 'Due by', 'Paid', 'Overdue'));
 
 -- RLS on (defense in depth). App uses the secret key (bypasses RLS).
 alter table public.invoices enable row level security;

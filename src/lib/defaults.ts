@@ -8,6 +8,7 @@ import type {
 
 export const INVOICE_STATUSES: InvoiceStatus[] = [
   "Due on receipt",
+  "Due by",
   "Paid",
   "Overdue",
   "Draft",
@@ -84,11 +85,8 @@ export function ensureDueDate(invoice: Invoice): Invoice {
   return { ...invoice, dueDate: invoice.dueDate ?? "" };
 }
 
-export function addDaysToIsoDate(iso: string, days: number): string {
-  const [y, m, d] = iso.split("-").map(Number);
-  const date = new Date(y, (m || 1) - 1, d || 1);
-  date.setDate(date.getDate() + days);
-  return formatDateInput(date);
+export function unpaidStatusAfterPaid(invoice: Pick<Invoice, "dueDate">): InvoiceStatus {
+  return invoice.dueDate ? "Due by" : "Due on receipt";
 }
 
 export function createDefaultInvoice(): Invoice {
@@ -102,7 +100,7 @@ export function createDefaultInvoice(): Invoice {
     },
     invoiceNumber: "",
     invoiceDate: dateStr,
-    dueDate: addDaysToIsoDate(dateStr, 7),
+    dueDate: "",
     jobDate: dateStr,
     status: "Due on receipt",
     serviceDetails: {

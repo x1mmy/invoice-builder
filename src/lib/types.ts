@@ -1,4 +1,9 @@
-export type InvoiceStatus = "Due on receipt" | "Paid" | "Overdue" | "Draft";
+export type InvoiceStatus =
+  | "Due on receipt"
+  | "Due by"
+  | "Paid"
+  | "Overdue"
+  | "Draft";
 
 export type Client = {
   name: string;

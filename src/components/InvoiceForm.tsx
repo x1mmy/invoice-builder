@@ -130,11 +130,13 @@ export function InvoiceForm({ invoice, onChange }: Props) {
             <FieldLabel>Status</FieldLabel>
             <select
               value={invoice.status}
-              onChange={(e) =>
+              onChange={(e) => {
+                const status = e.target.value as Invoice["status"];
                 update({
-                  status: e.target.value as Invoice["status"],
-                })
-              }
+                  status,
+                  dueDate: status === "Due on receipt" ? "" : invoice.dueDate,
+                });
+              }}
               className="w-full rounded-md border border-stone-300 bg-white px-2.5 py-1.5 text-sm text-stone-800 outline-none focus:border-[#5f7a64] focus:ring-1 focus:ring-[#5f7a64]"
             >
               {INVOICE_STATUSES.map((s) => (
@@ -150,12 +152,14 @@ export function InvoiceForm({ invoice, onChange }: Props) {
             value={invoice.invoiceDate}
             onChange={(e) => update({ invoiceDate: e.target.value })}
           />
-          <TextInput
-            label="Due date"
-            type="date"
-            value={invoice.dueDate}
-            onChange={(e) => update({ dueDate: e.target.value })}
-          />
+          {invoice.status === "Due by" ? (
+            <TextInput
+              label="Due date"
+              type="date"
+              value={invoice.dueDate}
+              onChange={(e) => update({ dueDate: e.target.value })}
+            />
+          ) : null}
           <TextInput
             label="Job date"
             type="date"
