@@ -7,7 +7,7 @@ import { deleteInvoice, saveInvoice } from "@/app/actions/invoices";
 import { AppNav } from "@/components/AppNav";
 import { InvoiceForm } from "@/components/InvoiceForm";
 import { InvoicePreview } from "@/components/InvoicePreview";
-import { createDefaultInvoice } from "@/lib/defaults";
+import { createDefaultInvoice, ensureDueDate } from "@/lib/defaults";
 import { downloadInvoicePdf } from "@/lib/downloadPdf";
 import { clearDraft, loadDraft, saveDraft } from "@/lib/storage";
 import type { Invoice } from "@/lib/types";
@@ -32,7 +32,8 @@ function technicalMessage(err: unknown): string {
 export function InvoiceBuilder({ invoiceId, initialInvoice }: Props) {
   const router = useRouter();
   const [invoice, setInvoice] = useState<Invoice>(
-    () => initialInvoice ?? createDefaultInvoice(),
+    () =>
+      initialInvoice ? ensureDueDate(initialInvoice) : createDefaultInvoice(),
   );
   const [hasHydrated, setHasHydrated] = useState(Boolean(initialInvoice));
   const [savingPdf, setSavingPdf] = useState(false);

@@ -1,4 +1,4 @@
-import { BUSINESS } from "@/lib/business";
+import { BUSINESS, paymentNoteForDueDate } from "@/lib/business";
 import { Logo } from "@/components/Logo";
 import {
   formatDisplayDate,
@@ -50,6 +50,10 @@ export function InvoicePreview({ invoice }: Props) {
               <div className="flex justify-center gap-2 sm:justify-end">
                 <dt className="text-stone-500">Invoice Date:</dt>
                 <dd>{formatDisplayDate(invoice.invoiceDate) || "—"}</dd>
+              </div>
+              <div className="flex justify-center gap-2 sm:justify-end">
+                <dt className="text-stone-500">Due Date:</dt>
+                <dd>{formatDisplayDate(invoice.dueDate) || "—"}</dd>
               </div>
               <div className="flex justify-center gap-2 sm:justify-end">
                 <dt className="text-stone-500">Job Date:</dt>
@@ -274,7 +278,7 @@ export function InvoicePreview({ invoice }: Props) {
             </p>
           </div>
           <p className="mt-3 text-center text-[10px] leading-snug text-stone-500">
-            {BUSINESS.paymentNote}
+            {paymentNoteForDueDate(invoice.dueDate)}
           </p>
         </footer>
       </div>

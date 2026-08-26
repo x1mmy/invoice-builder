@@ -43,6 +43,7 @@ export type Invoice = {
   client: Client;
   invoiceNumber: string;
   invoiceDate: string;
+  dueDate: string;
   jobDate: string;
   status: InvoiceStatus;
   serviceDetails: ServiceDetails;

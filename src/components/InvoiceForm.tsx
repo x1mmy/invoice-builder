@@ -151,6 +151,12 @@ export function InvoiceForm({ invoice, onChange }: Props) {
             onChange={(e) => update({ invoiceDate: e.target.value })}
           />
           <TextInput
+            label="Due date"
+            type="date"
+            value={invoice.dueDate}
+            onChange={(e) => update({ dueDate: e.target.value })}
+          />
+          <TextInput
             label="Job date"
             type="date"
             value={invoice.jobDate}
