@@ -48,20 +48,14 @@ export function InvoicePreview({ invoice }: Props) {
                 </dd>
               </div>
               <div className="flex justify-center gap-2 sm:justify-end">
-                <dt className="text-stone-500">Invoice Date:</dt>
-                <dd>{formatDisplayDate(invoice.invoiceDate) || "—"}</dd>
-              </div>
-              {invoice.status === "Due by" && invoice.dueDate ? (
-                <div className="flex justify-center gap-2 sm:justify-end">
-                  <dt className="text-stone-500">Due Date:</dt>
-                  <dd>{formatDisplayDate(invoice.dueDate)}</dd>
-                </div>
-              ) : null}
-              <div className="flex justify-center gap-2 sm:justify-end">
                 <dt className="text-stone-500">Job Date:</dt>
                 <dd>{formatDisplayDate(invoice.jobDate) || "—"}</dd>
               </div>
-              <div className="mt-1 flex items-center justify-center gap-2 sm:justify-end">
+              <div className="flex justify-center gap-2 sm:justify-end">
+                <dt className="text-stone-500">Invoice Date:</dt>
+                <dd>{formatDisplayDate(invoice.invoiceDate) || "—"}</dd>
+              </div>
+              <div className="flex items-center justify-center gap-2 sm:justify-end">
                 <dt className="text-stone-500">Status:</dt>
                 <dd>
                   <span className="inline-block rounded-full bg-[#5f7a64] px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-white uppercase">
@@ -69,6 +63,12 @@ export function InvoicePreview({ invoice }: Props) {
                   </span>
                 </dd>
               </div>
+              {invoice.status === "Due by" && invoice.dueDate ? (
+                <div className="flex justify-center gap-2 sm:justify-end">
+                  <dt className="text-stone-500">Due Date:</dt>
+                  <dd>{formatDisplayDate(invoice.dueDate)}</dd>
+                </div>
+              ) : null}
             </dl>
           </div>
         </header>
@@ -94,7 +94,7 @@ export function InvoicePreview({ invoice }: Props) {
               Billed to
             </p>
             <div className="mt-1 text-sm leading-snug">
-              <p className="font-semibold text-stone-800">
+              <p className="font-semibold whitespace-pre-line text-stone-800">
                 {invoice.client.name || "Client name"}
               </p>
               {invoice.client.addressLine1 && (

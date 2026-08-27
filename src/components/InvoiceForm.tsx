@@ -90,14 +90,18 @@ export function InvoiceForm({ invoice, onChange }: Props) {
   return (
     <div className="space-y-6">
       <Section title="Billed to">
-        <TextInput
-          label="Client name"
-          value={invoice.client.name}
-          onChange={(e) =>
-            update({ client: { ...invoice.client, name: e.target.value } })
-          }
-          placeholder="Lucky and Shweta"
-        />
+        <div>
+          <FieldLabel>Client name</FieldLabel>
+          <textarea
+            value={invoice.client.name}
+            onChange={(e) =>
+              update({ client: { ...invoice.client, name: e.target.value } })
+            }
+            placeholder={"Lucky & Lucky Pty Ltd.\nT/A: Lucky Lawns Mowing"}
+            rows={2}
+            className="w-full rounded-md border border-stone-300 bg-white px-2.5 py-1.5 text-sm text-stone-800 outline-none focus:border-[#5f7a64] focus:ring-1 focus:ring-[#5f7a64]"
+          />
+        </div>
         <TextInput
           label="Address line 1"
           value={invoice.client.addressLine1}
@@ -126,6 +130,18 @@ export function InvoiceForm({ invoice, onChange }: Props) {
             onChange={(e) => update({ invoiceNumber: e.target.value })}
             placeholder="001"
           />
+          <TextInput
+            label="Job date"
+            type="date"
+            value={invoice.jobDate}
+            onChange={(e) => update({ jobDate: e.target.value })}
+          />
+          <TextInput
+            label="Invoice date"
+            type="date"
+            value={invoice.invoiceDate}
+            onChange={(e) => update({ invoiceDate: e.target.value })}
+          />
           <div>
             <FieldLabel>Status</FieldLabel>
             <select
@@ -146,12 +162,6 @@ export function InvoiceForm({ invoice, onChange }: Props) {
               ))}
             </select>
           </div>
-          <TextInput
-            label="Invoice date"
-            type="date"
-            value={invoice.invoiceDate}
-            onChange={(e) => update({ invoiceDate: e.target.value })}
-          />
           {invoice.status === "Due by" ? (
             <TextInput
               label="Due date"
@@ -160,12 +170,6 @@ export function InvoiceForm({ invoice, onChange }: Props) {
               onChange={(e) => update({ dueDate: e.target.value })}
             />
           ) : null}
-          <TextInput
-            label="Job date"
-            type="date"
-            value={invoice.jobDate}
-            onChange={(e) => update({ jobDate: e.target.value })}
-          />
         </div>
       </Section>
 

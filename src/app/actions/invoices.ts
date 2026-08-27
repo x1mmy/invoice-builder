@@ -53,7 +53,7 @@ export async function saveInvoice(
       invoice_number: invoice.invoiceNumber || "—",
       invoice_date: invoice.invoiceDate || new Date().toISOString().slice(0, 10),
       job_date: invoice.jobDate || invoice.invoiceDate,
-      client_name: invoice.client.name.trim() || "—",
+      client_name: invoice.client.name.replace(/\s+/g, " ").trim() || "—",
       amount,
       status: invoice.status,
       payload: invoice,
