@@ -123,6 +123,17 @@ export function InvoiceForm({ invoice, onChange }: Props) {
       </Section>
 
       <Section title="Invoice details">
+        <label className="flex items-start gap-2">
+          <input
+            type="checkbox"
+            checked={invoice.showLogo}
+            onChange={(e) => update({ showLogo: e.target.checked })}
+            className="mt-0.5 accent-[#5f7a64]"
+          />
+          <span className="text-sm text-stone-700">
+            Include Radiant Rooms logo
+          </span>
+        </label>
         <div className="grid grid-cols-2 gap-3">
           <TextInput
             label="Invoice number"

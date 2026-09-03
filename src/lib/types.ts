@@ -51,6 +51,8 @@ export type Invoice = {
   dueDate: string;
   jobDate: string;
   status: InvoiceStatus;
+  /** When false, admin look: no logo, gold bands, short thank-you. Missing on old rows means true. */
+  showLogo: boolean;
   serviceDetails: ServiceDetails;
   areas: AreaServiced[];
   lineItems: LineItem[];

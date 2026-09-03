@@ -81,8 +81,12 @@ export function createCustomArea(): AreaServiced {
   };
 }
 
-export function ensureDueDate(invoice: Invoice): Invoice {
-  return { ...invoice, dueDate: invoice.dueDate ?? "" };
+export function normalizeInvoice(invoice: Invoice): Invoice {
+  return {
+    ...invoice,
+    dueDate: invoice.dueDate ?? "",
+    showLogo: invoice.showLogo ?? true,
+  };
 }
 
 export function unpaidStatusAfterPaid(invoice: Pick<Invoice, "dueDate">): InvoiceStatus {
@@ -103,6 +107,7 @@ export function createDefaultInvoice(): Invoice {
     dueDate: "",
     jobDate: dateStr,
     status: "Due on receipt",
+    showLogo: true,
     serviceDetails: {
       serviceName: "Deep Clean",
       startTime: "",

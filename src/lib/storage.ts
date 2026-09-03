@@ -1,4 +1,4 @@
-import { ensureDueDate } from "./defaults";
+import { normalizeInvoice } from "./defaults";
 import type { Invoice } from "./types";
 
 const STORAGE_KEY = "radiant-rooms-invoice-draft";
@@ -10,7 +10,7 @@ export function loadDraft(): Invoice | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as Invoice;
     if (!parsed || typeof parsed !== "object" || !parsed.client) return null;
-    return ensureDueDate(parsed);
+    return normalizeInvoice(parsed);
   } catch {
     return null;
   }

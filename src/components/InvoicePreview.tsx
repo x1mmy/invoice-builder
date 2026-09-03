@@ -1,5 +1,6 @@
 import { BUSINESS, paymentNoteForDueDate } from "@/lib/business";
 import { Logo } from "@/components/Logo";
+import { invoiceLook } from "@/lib/invoice-look";
 import {
   formatDisplayDate,
   formatMoney,
@@ -24,6 +25,7 @@ export function InvoicePreview({ invoice }: Props) {
   );
   const total = subtotal(invoice.lineItems);
   const summary = serviceSummary(invoice.serviceDetails);
+  const look = invoiceLook(invoice.showLogo);
 
   return (
     <article
@@ -35,7 +37,9 @@ export function InvoicePreview({ invoice }: Props) {
       <div className="relative px-5 pt-5 pb-7 sm:px-7 sm:pt-6 sm:pb-8">
         {/* Compact header: logo + invoice meta side by side */}
         <header className="flex flex-col items-center gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-          <Logo className="h-auto w-[140px] shrink-0 object-contain sm:w-[160px]" />
+          {invoice.showLogo ? (
+            <Logo className="h-auto w-[140px] shrink-0 object-contain sm:w-[160px]" />
+          ) : null}
           <div className="w-full text-center sm:w-auto sm:text-right">
             <p className="font-[family-name:var(--font-display)] text-2xl leading-none text-[#3d5244] sm:text-3xl">
               Invoice
@@ -201,14 +205,16 @@ export function InvoicePreview({ invoice }: Props) {
                     {formatMoney(total)}
                   </td>
                 </tr>
-                <tr className="bg-[#5c4a32]">
+                <tr className={look.totalBarClass}>
                   <td
                     colSpan={2}
-                    className="px-2.5 py-2 text-[11px] font-bold tracking-wider text-white uppercase"
+                    className={`px-2.5 py-2 text-[11px] font-bold tracking-wider uppercase ${look.totalTextClass}`}
                   >
                     Total Due
                   </td>
-                  <td className="px-2.5 py-2 text-right text-sm font-bold text-white tabular-nums">
+                  <td
+                    className={`px-2.5 py-2 text-right text-sm font-bold tabular-nums ${look.totalTextClass}`}
+                  >
                     {formatMoney(total)}
                   </td>
                 </tr>
@@ -271,13 +277,15 @@ export function InvoicePreview({ invoice }: Props) {
 
         {/* Footer band */}
         <footer className="mt-5">
-          <div className="overflow-hidden rounded-sm bg-gradient-to-r from-[#5c4a32] via-[#7a6448] to-[#5c4a32] px-3 py-3 text-center text-white">
+          <div
+            className={`overflow-hidden rounded-sm px-3 py-3 text-center ${look.footerBarClass}`}
+          >
             <p className="font-[family-name:var(--font-display)] text-xl leading-tight">
-              {BUSINESS.footerThanks}
+              {look.footerHeadline}
             </p>
-            <p className="mt-0.5 text-[11px] text-white/80">
-              {BUSINESS.footerNote} · Thank you for your business.
-            </p>
+            {look.footerNote ? (
+              <p className="mt-0.5 text-[11px] text-white/80">{look.footerNote}</p>
+            ) : null}
           </div>
           <p className="mt-3 text-center text-[10px] leading-snug text-stone-500">
             {paymentNoteForDueDate(invoice.status, invoice.dueDate)}

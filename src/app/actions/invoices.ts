@@ -6,7 +6,7 @@ import type { InvoiceRow } from "@/lib/books";
 import { subtotal } from "@/lib/calc";
 import { periodRange, type PeriodFilter } from "@/lib/period";
 import { getSupabase } from "@/lib/supabase/server";
-import { ensureDueDate } from "@/lib/defaults";
+import { normalizeInvoice } from "@/lib/defaults";
 import type { Invoice, InvoiceStatus } from "@/lib/types";
 
 export async function listInvoices(
@@ -148,7 +148,7 @@ function normalizeInvoiceRow(row: Record<string, unknown>): InvoiceRow {
     client_name: String(row.client_name ?? ""),
     amount: Number(row.amount ?? 0),
     status: row.status as InvoiceStatus,
-    payload: ensureDueDate((row.payload ?? {}) as Invoice),
+    payload: normalizeInvoice((row.payload ?? {}) as Invoice),
     created_at: String(row.created_at ?? ""),
   };
 }
