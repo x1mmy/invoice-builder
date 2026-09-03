@@ -225,6 +225,23 @@ export function InvoiceForm({ invoice, onChange }: Props) {
               })
             }
           />
+          {invoice.serviceDetails.startTime || invoice.serviceDetails.endTime ? (
+            <button
+              type="button"
+              onClick={() =>
+                update({
+                  serviceDetails: {
+                    ...invoice.serviceDetails,
+                    startTime: "",
+                    endTime: "",
+                  },
+                })
+              }
+              className="col-span-2 text-left text-sm font-medium text-[#5f7a64] hover:underline"
+            >
+              Clear times
+            </button>
+          ) : null}
           <TextInput
             label="Hours per staff"
             type="number"

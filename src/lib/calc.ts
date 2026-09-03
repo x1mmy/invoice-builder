@@ -43,9 +43,9 @@ export function lineDetailsDisplay(item: LineItem): string {
 export function serviceSummary(details: ServiceDetails): string {
   const parts: string[] = [];
 
-  if (details.startTime && details.endTime) {
+  if (details.startTime && details.endTime && details.startTime !== details.endTime) {
     parts.push(`${formatTime(details.startTime)} – ${formatTime(details.endTime)}`);
-  } else if (details.startTime) {
+  } else if (details.startTime && !details.endTime) {
     parts.push(formatTime(details.startTime));
   }
 

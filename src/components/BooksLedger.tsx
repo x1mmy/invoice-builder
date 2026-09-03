@@ -232,7 +232,7 @@ export function BooksLedger({
                 {invoices.map((row) => (
                   <li
                     key={row.id}
-                    className="grid grid-cols-1 gap-2 px-4 py-3 sm:grid-cols-[6.5rem_minmax(0,1fr)_6rem_5.5rem_auto] sm:items-center sm:gap-3"
+                    className="grid grid-cols-1 gap-2 px-4 py-3 sm:grid-cols-[6.5rem_minmax(0,1fr)_auto_5.5rem_auto] sm:items-center sm:gap-3"
                   >
                     <p className="text-sm text-stone-500">
                       {formatDisplayDate(row.invoice_date)}
@@ -255,20 +255,28 @@ export function BooksLedger({
                           : "bg-amber-100 text-amber-900"
                       }`}
                     >
-                      {row.status === "Paid" ? "Paid" : "Mark paid"}
+                      {row.status === "Paid" ? "Unmark paid" : "Mark paid"}
                     </button>
                     <p className="break-all font-semibold tabular-nums text-stone-800 sm:text-right">
                       {formatMoney(row.amount)}
                     </p>
-                    <button
-                      type="button"
-                      disabled={pending}
-                      onClick={() => onDeleteInvoice(row)}
-                      className="min-h-11 justify-self-start rounded-md px-2 text-xs text-stone-500 hover:text-red-700"
-                      aria-label="Delete invoice"
-                    >
-                      Delete
-                    </button>
+                    <div className="flex flex-wrap items-center gap-1">
+                      <Link
+                        href={`/invoice/${row.id}`}
+                        className="inline-flex min-h-11 items-center rounded-md px-2 text-xs text-stone-500 hover:text-stone-800"
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        type="button"
+                        disabled={pending}
+                        onClick={() => onDeleteInvoice(row)}
+                        className="min-h-11 rounded-md px-2 text-xs text-stone-500 hover:text-red-700"
+                        aria-label="Delete invoice"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </li>
                 ))}
               </ul>
