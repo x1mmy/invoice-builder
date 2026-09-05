@@ -14,7 +14,8 @@ export default async function CashJobsPage() {
             Cash jobs
           </h1>
           <p className="text-sm text-stone-500">
-            Jobs paid in cash — details, hours, rate, and other fees
+            Jobs paid in cash — hours × rate plus other fees. Already collected,
+            so they do not need a Paid toggle and do not change still to receive.
           </p>
         </header>
         <CashJobsLog rows={rows} />

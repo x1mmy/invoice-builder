@@ -10,12 +10,21 @@ import {
   EmptyState,
   SheetWithTotal,
 } from "@/components/DatedAmountPanel";
-import type { BooksTotals, ExpenseRow, InvoiceRow } from "@/lib/books";
+import {
+  isPaidStatus,
+  paidInvoices,
+  stillToReceive,
+  unpaidInvoices,
+  type BooksTotals,
+  type ExpenseRow,
+  type InvoiceRow,
+} from "@/lib/books";
 import { formatMoney, formatDisplayDate } from "@/lib/calc";
 import { unpaidStatusAfterPaid } from "@/lib/defaults";
-import { fyLabel, type PeriodFilter } from "@/lib/period";
+import { fyLabel, sumAmounts, type PeriodFilter } from "@/lib/period";
 
 type Tab = "invoices" | "expenses";
+type InvoiceFilter = "all" | "unpaid" | "paid";
 
 type Props = {
   period: PeriodFilter;
@@ -46,8 +55,27 @@ export function BooksLedger({
 }: Props) {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("invoices");
+  const [invoiceFilter, setInvoiceFilter] = useState<InvoiceFilter>("all");
   const [message, setMessage] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+
+  const unpaid = unpaidInvoices(invoices);
+  const paid = paidInvoices(invoices);
+  const visibleInvoices =
+    invoiceFilter === "unpaid"
+      ? unpaid
+      : invoiceFilter === "paid"
+        ? paid
+        : invoices;
+  const invoiceSheetTotal =
+    invoiceFilter === "all" ? totals.income : sumAmounts(visibleInvoices);
+  const invoiceSheetLabel =
+    invoiceFilter === "unpaid"
+      ? "Unpaid"
+      : invoiceFilter === "paid"
+        ? "Received"
+        : "Total invoiced";
+  const outstanding = stillToReceive(totals.income, totals.received);
 
   const setPeriod = (next: PeriodFilter) => {
     const params = new URLSearchParams();
@@ -75,7 +103,7 @@ export function BooksLedger({
 
   const onTogglePaid = (row: InvoiceRow) => {
     const next =
-      row.status === "Paid" ? unpaidStatusAfterPaid(row.payload) : "Paid";
+      isPaidStatus(row.status) ? unpaidStatusAfterPaid(row.payload) : "Paid";
     startTransition(async () => {
       const result = await updateInvoiceStatus(row.id, next);
       if (!result.ok) flash(result.error);
@@ -182,11 +210,17 @@ export function BooksLedger({
         <SupportingFigure label="Cash jobs" value={totals.cashJobs} />
       </dl>
 
-      {totals.income > totals.received ? (
+      {outstanding > 0 ? (
         <p className="text-sm font-medium text-stone-600">
-          {formatMoney(totals.income - totals.received)} still to receive
+          {formatMoney(outstanding)} still to receive · {periodLabel} ·{" "}
+          {unpaid.length} unpaid {unpaid.length === 1 ? "invoice" : "invoices"}
         </p>
       ) : null}
+
+      <p className="text-sm text-stone-500">
+        Cash jobs are already paid in cash. They add to Profit only — not to still
+        to receive.
+      </p>
 
       {message ? (
         <p className="rounded-md bg-white/80 px-3 py-2 text-sm text-stone-700 shadow-sm" role="status">
@@ -211,7 +245,7 @@ export function BooksLedger({
 
       {tab === "invoices" ? (
         <section className="space-y-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-stone-500">
               Invoices
             </h2>
@@ -222,14 +256,45 @@ export function BooksLedger({
               New invoice
             </Link>
           </div>
-          {invoices.length === 0 ? (
-            <SheetWithTotal label="Total invoiced" value={totals.income}>
-              <EmptyState text="No invoices in this period yet." />
+          <div className="flex flex-wrap gap-1" aria-label="Invoice payment filter">
+            {(
+              [
+                ["all", "All"],
+                ["unpaid", "Unpaid"],
+                ["paid", "Paid"],
+              ] as const
+            ).map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setInvoiceFilter(id)}
+                aria-pressed={invoiceFilter === id}
+                className={`min-h-11 rounded-lg border px-3 py-2 text-sm font-medium ${
+                  invoiceFilter === id
+                    ? "border-[#5f7a64] bg-[#5f7a64] text-white"
+                    : "border-stone-300/80 bg-white/70 text-stone-600 hover:bg-stone-100"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          {visibleInvoices.length === 0 ? (
+            <SheetWithTotal label={invoiceSheetLabel} value={invoiceSheetTotal}>
+              <EmptyState
+                text={
+                  invoices.length === 0
+                    ? "No invoices in this period yet."
+                    : invoiceFilter === "unpaid"
+                      ? "No unpaid invoices in this period."
+                      : "No paid invoices in this period."
+                }
+              />
             </SheetWithTotal>
           ) : (
-            <SheetWithTotal label="Total invoiced" value={totals.income}>
+            <SheetWithTotal label={invoiceSheetLabel} value={invoiceSheetTotal}>
               <ul className="divide-y divide-stone-200/80">
-                {invoices.map((row) => (
+                {visibleInvoices.map((row) => (
                   <li
                     key={row.id}
                     className="grid grid-cols-1 gap-2 px-4 py-3 sm:grid-cols-[6.5rem_minmax(0,1fr)_auto_5.5rem_auto] sm:items-center sm:gap-3"
@@ -250,12 +315,12 @@ export function BooksLedger({
                       disabled={pending}
                       onClick={() => onTogglePaid(row)}
                       className={`min-h-11 justify-self-start rounded-full px-3 py-1 text-xs font-semibold ${
-                        row.status === "Paid"
+                        isPaidStatus(row.status)
                           ? "bg-[#5f7a64]/15 text-[#3f5544]"
                           : "bg-amber-100 text-amber-900"
                       }`}
                     >
-                      {row.status === "Paid" ? "Unmark paid" : "Mark paid"}
+                      {isPaidStatus(row.status) ? "Unmark paid" : "Mark paid"}
                     </button>
                     <p className="break-all font-semibold tabular-nums text-stone-800 sm:text-right">
                       {formatMoney(row.amount)}

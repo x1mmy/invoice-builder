@@ -138,4 +138,8 @@ describe("cashJobAmount", () => {
   it("sums labour and extra charges", () => {
     expect(cashJobAmount(2, 40, [{ amount: 15 }, { amount: 15 }])).toBe(110);
   });
+
+  it("rounds 4.5 hours at $33.33/hr to 149.99, not 149.98", () => {
+    expect(cashJobAmount(4.5, 33.33)).toBe(149.99);
+  });
 });

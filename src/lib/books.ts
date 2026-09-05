@@ -42,8 +42,24 @@ export type BooksTotals = {
   profit: number;
 };
 
+export function isPaidStatus(status: string): boolean {
+  return status === "Paid";
+}
+
+export function paidInvoices<T extends { status: string }>(invoices: T[]): T[] {
+  return invoices.filter((row) => isPaidStatus(row.status));
+}
+
+export function unpaidInvoices<T extends { status: string }>(invoices: T[]): T[] {
+  return invoices.filter((row) => !isPaidStatus(row.status));
+}
+
+export function stillToReceive(income: number, received: number): number {
+  return Math.round((income - received) * 100) / 100;
+}
+
 export function sumReceived(
   invoices: { amount: number | string; status: string }[],
 ): number {
-  return sumAmounts(invoices.filter((row) => row.status === "Paid"));
+  return sumAmounts(paidInvoices(invoices));
 }

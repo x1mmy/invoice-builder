@@ -22,16 +22,23 @@ export type ParsedCashJob = {
   amount: number;
 };
 
+function cents(n: number): number {
+  return Math.round(Number(n) * 100);
+}
+
+function fromCents(n: number): number {
+  return n / 100;
+}
+
 export function labourAmount(hours: number, rate: number): number {
-  const h = Math.round(Number(hours) * 100) / 100;
-  const r = Math.round(Number(rate) * 100) / 100;
+  const h = cents(hours);
+  const r = cents(rate);
   if (!(h > 0) || !(r > 0)) return 0;
-  return Math.round(h * r * 100) / 100;
+  return fromCents(Math.round((h * r) / 100));
 }
 
 function extraChargesTotal(charges: { amount: number }[]): number {
-  const total = charges.reduce((sum, charge) => sum + Number(charge.amount || 0), 0);
-  return Math.round(total * 100) / 100;
+  return fromCents(charges.reduce((sum, charge) => sum + cents(charge.amount || 0), 0));
 }
 
 export function cashJobAmount(
@@ -39,7 +46,7 @@ export function cashJobAmount(
   rate: number,
   extraCharges: { amount: number }[] = [],
 ): number {
-  return Math.round((labourAmount(hours, rate) + extraChargesTotal(extraCharges)) * 100) / 100;
+  return fromCents(cents(labourAmount(hours, rate) + extraChargesTotal(extraCharges)));
 }
 
 function parseExtraCharges(
@@ -48,7 +55,7 @@ function parseExtraCharges(
   const charges: CashJobCharge[] = [];
   for (const row of input ?? []) {
     const label = row.label.trim();
-    const amount = Math.round(Number(row.amount) * 100) / 100;
+    const amount = fromCents(cents(row.amount));
     if (!label && !(amount > 0)) continue;
     if (!label || !(amount > 0)) {
       return {
@@ -64,13 +71,13 @@ function parseExtraCharges(
 export function parseCashJobInput(
   input: CashJobInput,
 ): { ok: true; data: ParsedCashJob } | { ok: false; error: string } {
-  const hours = Math.round(Number(input.hours) * 100) / 100;
-  const rate = Math.round(Number(input.rate) * 100) / 100;
+  const hours = fromCents(cents(input.hours));
+  const rate = fromCents(cents(input.rate));
   const extras = parseExtraCharges(input.extraCharges);
   if (!extras.ok) return extras;
 
   const labour = labourAmount(hours, rate);
-  const amount = Math.round((labour + extraChargesTotal(extras.data)) * 100) / 100;
+  const amount = cashJobAmount(hours, rate, extras.data);
 
   if (!input.date || !input.description.trim() || labour === 0) {
     return {
