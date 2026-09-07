@@ -41,6 +41,7 @@ export function InvoiceBuilder({ invoiceId, initialInvoice }: Props) {
   const [savingPdf, setSavingPdf] = useState(false);
   const [savedId, setSavedId] = useState<string | undefined>(invoiceId);
   const [toast, setToast] = useState<Toast | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [pending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -119,13 +120,17 @@ export function InvoiceBuilder({ invoiceId, initialInvoice }: Props) {
 
   const handleDelete = () => {
     if (!savedId) return;
-    if (!window.confirm("Remove this invoice from Books?")) return;
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      return;
+    }
     startTransition(async () => {
       const result = await deleteInvoice(savedId);
       if (!result.ok) {
         flash(result.error, { tone: "error" });
         return;
       }
+      setConfirmDelete(false);
       clearDraft();
       router.push("/");
     });
@@ -158,14 +163,30 @@ export function InvoiceBuilder({ invoiceId, initialInvoice }: Props) {
               New invoice
             </button>
             {savedId ? (
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={pending}
-                className="rounded-md border border-red-200 bg-white px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-60"
-              >
-                Delete
-              </button>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={pending}
+                  className={
+                    confirmDelete
+                      ? "min-h-11 rounded-md bg-red-700 px-3 py-2 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-60"
+                      : "min-h-11 rounded-md border border-red-200 bg-white px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:opacity-60"
+                  }
+                >
+                  {confirmDelete ? "Confirm delete" : "Delete"}
+                </button>
+                {confirmDelete ? (
+                  <button
+                    type="button"
+                    onClick={() => setConfirmDelete(false)}
+                    disabled={pending}
+                    className="min-h-11 rounded-md border border-stone-300 bg-white px-3 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 disabled:opacity-60"
+                  >
+                    Cancel
+                  </button>
+                ) : null}
+              </div>
             ) : null}
             <button
               type="button"

@@ -57,6 +57,11 @@ export function BooksLedger({
   const [tab, setTab] = useState<Tab>("invoices");
   const [invoiceFilter, setInvoiceFilter] = useState<InvoiceFilter>("all");
   const [message, setMessage] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [rowNotice, setRowNotice] = useState<{ id: string; text: string } | null>(
+    null,
+  );
+  const [listNotice, setListNotice] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   const unpaid = unpaidInvoices(invoices);
@@ -112,14 +117,22 @@ export function BooksLedger({
   };
 
   const onDeleteInvoice = (row: InvoiceRow) => {
-    if (!window.confirm(`Remove invoice ${row.invoice_number} from Books?`)) return;
+    if (confirmDeleteId !== row.id) {
+      setConfirmDeleteId(row.id);
+      setRowNotice(null);
+      setListNotice(null);
+      return;
+    }
     startTransition(async () => {
       const result = await deleteInvoice(row.id);
-      if (!result.ok) flash(result.error);
-      else {
-        flash("Invoice removed.");
-        router.refresh();
+      if (!result.ok) {
+        setRowNotice({ id: row.id, text: result.error });
+        return;
       }
+      setConfirmDeleteId(null);
+      setRowNotice(null);
+      setListNotice("Invoice removed.");
+      router.refresh();
     });
   };
 
@@ -325,26 +338,65 @@ export function BooksLedger({
                     <p className="break-all font-semibold tabular-nums text-stone-800 sm:text-right">
                       {formatMoney(row.amount)}
                     </p>
-                    <div className="flex flex-wrap items-center gap-1">
-                      <Link
-                        href={`/invoice/${row.id}`}
-                        className="inline-flex min-h-11 items-center rounded-md px-2 text-xs text-stone-500 hover:text-stone-800"
-                      >
-                        Edit
-                      </Link>
-                      <button
-                        type="button"
-                        disabled={pending}
-                        onClick={() => onDeleteInvoice(row)}
-                        className="min-h-11 rounded-md px-2 text-xs text-stone-500 hover:text-red-700"
-                        aria-label="Delete invoice"
-                      >
-                        Delete
-                      </button>
+                    <div className="flex w-full flex-col gap-1 sm:w-auto">
+                      <div className="flex w-full flex-wrap items-center gap-1">
+                        {confirmDeleteId === row.id ? (
+                          <>
+                            <button
+                              type="button"
+                              disabled={pending}
+                              onClick={() => onDeleteInvoice(row)}
+                              className="inline-flex min-h-11 w-full items-center justify-center rounded-md bg-red-700 px-3 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-60 sm:w-auto"
+                              aria-label={`Confirm delete invoice ${row.invoice_number}`}
+                            >
+                              Confirm delete
+                            </button>
+                            <button
+                              type="button"
+                              disabled={pending}
+                              onClick={() => setConfirmDeleteId(null)}
+                              className="inline-flex min-h-11 items-center rounded-md px-3 text-sm font-medium text-stone-600 hover:bg-stone-100 disabled:opacity-60"
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <Link
+                              href={`/invoice/${row.id}`}
+                              className="inline-flex min-h-11 items-center rounded-md px-2 text-sm text-stone-500 hover:text-stone-800"
+                            >
+                              Edit
+                            </Link>
+                            <button
+                              type="button"
+                              disabled={pending}
+                              onClick={() => onDeleteInvoice(row)}
+                              className="inline-flex min-h-11 items-center rounded-md px-2 text-sm font-medium text-stone-600 hover:text-red-700"
+                              aria-label={`Delete invoice ${row.invoice_number}`}
+                            >
+                              Delete
+                            </button>
+                          </>
+                        )}
+                      </div>
+                      {rowNotice?.id === row.id ? (
+                        <p className="text-sm text-red-800" role="alert">
+                          {rowNotice.text}
+                        </p>
+                      ) : null}
                     </div>
                   </li>
                 ))}
               </ul>
+              {listNotice ? (
+                <p
+                  className="border-t border-stone-200/80 px-4 py-3 text-sm text-stone-700"
+                  role="status"
+                >
+                  {listNotice}
+                </p>
+              ) : null}
             </SheetWithTotal>
           )}
         </section>
