@@ -30,6 +30,7 @@ describe("renderStatementPdf", () => {
     expect(raw).toContain("Profit & loss");
     expect(raw).toContain("No expenses in this period.");
     expect(raw).toContain("ABN 89 766 007 046");
+    expect(raw).toContain("Zamilah Pervez");
   });
 
   it("starts a new page between expense rows instead of splitting one", () => {

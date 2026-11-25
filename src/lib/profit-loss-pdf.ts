@@ -78,8 +78,12 @@ function drawContinuedHeader(pdf: jsPDF, statement: ProfitLossStatement): number
   pdf.text(BUSINESS.name, LEFT, y);
   pdf.setFont("times", "italic");
   pdf.text("Profit & loss", RIGHT, y, { align: "right" });
-  y += 5.5;
+  y += 5;
   pdf.setFont("times", "normal");
+  pdf.setFontSize(10);
+  ink(pdf, INK);
+  pdf.text(BUSINESS.owner, LEFT, y);
+  y += 4.6;
   pdf.setFontSize(9);
   ink(pdf, MUTED);
   pdf.text(`${statement.periodLabel}   ${statement.rangeLabel}`, LEFT, y);
@@ -98,7 +102,12 @@ function drawFirstHeader(pdf: jsPDF, statement: ProfitLossStatement): number {
   pdf.setFontSize(9);
   ink(pdf, MUTED);
   pdf.text(`ABN ${BUSINESS.abn}`, RIGHT, y, { align: "right" });
-  y += 8;
+  y += 5.2;
+  pdf.setFont("times", "italic");
+  pdf.setFontSize(12);
+  ink(pdf, INK);
+  pdf.text(BUSINESS.owner, LEFT, y);
+  y += 11;
   pdf.setFont("times", "bold");
   pdf.setFontSize(26);
   ink(pdf, INK);

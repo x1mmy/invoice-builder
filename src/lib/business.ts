@@ -2,16 +2,18 @@ import { formatDisplayDate } from "./calc";
 import type { InvoiceStatus } from "./types";
 
 const NAME = "Radiant Rooms Co";
+const OWNER = "Zamilah Pervez";
 
 export const BUSINESS = {
   name: NAME,
+  owner: OWNER,
   legalName: "RADIANT ROOMS CO",
   logoSrc: "/logo.png",
   abn: "89 766 007 046",
   email: "Radiant.Rooms.Co1@gmail.com",
   mobile: "0432 806 679",
   bank: {
-    accountName: "Zamilah Pervez",
+    accountName: OWNER,
     bsb: "032-076",
     accountNumber: "649136",
   },
