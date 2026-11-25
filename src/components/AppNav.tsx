@@ -7,6 +7,7 @@ import { Logo } from "@/components/Logo";
 
 const links = [
   { href: "/", label: "Books" },
+  { href: "/profit-loss", label: "Profit & loss" },
   { href: "/cash-jobs", label: "Cash jobs" },
   { href: "/invoice/new", label: "New invoice" },
 ] as const;
@@ -16,13 +17,13 @@ export function AppNav() {
 
   return (
     <header className="no-print sticky top-0 z-20 border-b border-stone-300/60 bg-[#e8ebe4]/90 backdrop-blur-md">
-      <div className="mx-auto flex max-w-[1600px] items-center justify-between gap-3 px-4 py-3 sm:px-6">
+      <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
         <div className="flex items-center gap-2.5">
           <Logo className="h-9 w-auto object-contain sm:h-10" />
           <p className="hidden text-xs text-stone-500 sm:block">Radiant Rooms Co</p>
         </div>
 
-        <nav className="flex items-center gap-1 sm:gap-2">
+        <nav className="flex flex-wrap items-center justify-end gap-1 sm:gap-2">
           {links.map((link) => {
             const active =
               link.href === "/"
