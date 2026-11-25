@@ -1,6 +1,6 @@
 # Radiant Rooms Co Invoicing
 
-Invoice builder and books ledger for Radiant Rooms Co cleaning care home services. Compose an Invoice, download a PDF, and save it to Books. Track expenses and cash jobs and see profit (Invoiced + Cash jobs − Expenses) for the selected period.
+Invoice builder and books ledger for Radiant Rooms Co cleaning care home services. Compose an Invoice, download a PDF, and save it to Books. Track expenses and cash jobs and see profit (Invoiced + Cash jobs − Expenses) for the selected period. Download a Profit & loss statement for a financial year or a recent span of months.
 
 ## Language
 
@@ -59,3 +59,7 @@ _Avoid_: Cash sale, walk-in, uninvoiced income
 **Profit**:
 Invoiced plus Cash jobs minus Expenses for the selected period (Paid status does not change Profit).
 _Avoid_: Margin, net, earnings
+
+**Profit & loss**:
+A statement of Income (Invoiced and Cash jobs), each Expense, and Profit for a chosen period, with a PDF download. Periods: This month, a chosen financial year (default the current FY), Calendar year, Last 3 months, Last 6 months, Last 12 months, or All time. Last 3, 6, and 12 months end today and start on the first day of that span, including the current month. Received is shown on the statement and does not change Profit.
+_Avoid_: P&L, income statement, report

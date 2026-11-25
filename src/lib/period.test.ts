@@ -3,8 +3,10 @@ import {
   australianDateString,
   civilPartsInTimeZone,
   currentFyStartYear,
+  formatLongDate,
   fyLabel,
   periodRange,
+  periodTitle,
   profit,
 } from "@/lib/period";
 
@@ -73,6 +75,41 @@ describe("periodRange fy", () => {
     expect(periodRange("all")).toEqual({ from: null, to: null });
   });
 
+  it("covers the current month and the months before it", () => {
+    const now = new Date("2026-11-25T01:00:00.000Z"); // 25 Nov 2026, Sydney
+
+    expect(periodRange("3m", { now })).toEqual({
+      from: "2026-09-01",
+      to: "2026-11-25",
+    });
+    expect(periodRange("6m", { now })).toEqual({
+      from: "2026-06-01",
+      to: "2026-11-25",
+    });
+    expect(periodRange("12m", { now })).toEqual({
+      from: "2025-12-01",
+      to: "2026-11-25",
+    });
+  });
+
+  it("crosses into the previous year", () => {
+    const now = new Date("2026-01-15T01:00:00.000Z"); // 15 Jan 2026, Sydney
+
+    expect(periodRange("3m", { now })).toEqual({
+      from: "2025-11-01",
+      to: "2026-01-15",
+    });
+  });
+
+  it("uses the Sydney date when UTC is still the day before", () => {
+    const now = new Date("2026-11-24T14:00:00.000Z"); // 25 Nov 2026 01:00 Sydney
+
+    expect(periodRange("3m", { now })).toEqual({
+      from: "2026-09-01",
+      to: "2026-11-25",
+    });
+  });
+
   it("uses Sydney civil month and year across a UTC date boundary", () => {
     const now = new Date("2026-06-30T20:00:00.000Z");
 
@@ -88,6 +125,24 @@ describe("periodRange fy", () => {
       from: "2026-07-01",
       to: "2027-06-30",
     });
+  });
+});
+
+describe("periodTitle", () => {
+  const now = new Date("2026-11-25T01:00:00.000Z");
+
+  it("names trailing ranges and the current financial year", () => {
+    expect(periodTitle("3m")).toBe("Last 3 months");
+    expect(periodTitle("6m")).toBe("Last 6 months");
+    expect(periodTitle("12m")).toBe("Last 12 months");
+    expect(periodTitle("fy", { now })).toBe("FY 2026–27");
+    expect(periodTitle("fy", { now, fyStartYear: 2024 })).toBe("FY 2024–25");
+  });
+});
+
+describe("formatLongDate", () => {
+  it("uses a day month year label", () => {
+    expect(formatLongDate("2026-09-01")).toBe("1 Sep 2026");
   });
 });
 
