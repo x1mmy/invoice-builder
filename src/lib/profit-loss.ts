@@ -12,6 +12,8 @@ import {
   type PeriodRangeOptions,
 } from "@/lib/period";
 
+export const statementHeading = "Profit & Loss";
+
 export const profitReceivedNote =
   "Profit is invoiced plus cash jobs, minus expenses. Received is the sum of invoices marked Paid in this period. Paid status does not change Profit.";
 

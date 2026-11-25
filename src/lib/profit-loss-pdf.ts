@@ -4,6 +4,7 @@ import { formatLongDate } from "@/lib/period";
 import {
   donationNote,
   profitReceivedNote,
+  statementHeading,
   statementPdfFilename,
   type ProfitLossStatement,
   type StatementExpense,
@@ -78,7 +79,7 @@ function drawContinuedHeader(pdf: jsPDF, statement: ProfitLossStatement): number
   ink(pdf, INK);
   pdf.text(BUSINESS.name, LEFT, y);
   pdf.setFont("times", "italic");
-  pdf.text("Profit & loss", RIGHT, y, { align: "right" });
+  pdf.text(statementHeading, RIGHT, y, { align: "right" });
   y += 5;
   pdf.setFont("times", "normal");
   pdf.setFontSize(10);
@@ -112,7 +113,7 @@ function drawFirstHeader(pdf: jsPDF, statement: ProfitLossStatement): number {
   pdf.setFont("times", "bold");
   pdf.setFontSize(26);
   ink(pdf, INK);
-  pdf.text("Profit & loss", LEFT, y);
+  pdf.text(statementHeading, LEFT, y);
   y += 8;
   pdf.setFont("times", "bold");
   pdf.setFontSize(12);
@@ -241,7 +242,7 @@ function stampPageNumbers(pdf: jsPDF) {
 /** Draw a text statement. Page breaks fall between expense rows. */
 export function renderStatementPdf(pdf: jsPDF, statement: ProfitLossStatement): void {
   pdf.setProperties({
-    title: `Profit & loss — ${statement.periodLabel}`,
+    title: `${statementHeading} — ${statement.periodLabel}`,
     author: BUSINESS.name,
     subject: statement.rangeLabel,
   });

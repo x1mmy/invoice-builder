@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { jsPDF } from "jspdf";
-import { buildProfitLossStatement } from "@/lib/profit-loss";
+import { buildProfitLossStatement, statementHeading } from "@/lib/profit-loss";
 import { renderStatementPdf } from "@/lib/profit-loss-pdf";
 
 function render(statement: ReturnType<typeof buildProfitLossStatement>) {
@@ -27,7 +27,7 @@ describe("renderStatementPdf", () => {
     );
     expect(pdf.getNumberOfPages()).toBe(1);
     const raw = Buffer.from(pdf.output("arraybuffer")).toString("latin1");
-    expect(raw).toContain("Profit & loss");
+    expect(raw).toContain(statementHeading);
     expect(raw).toContain("OPERATING EXPENSES");
     expect(raw).toContain("DONATIONS");
     expect(raw).toContain("None in this period.");

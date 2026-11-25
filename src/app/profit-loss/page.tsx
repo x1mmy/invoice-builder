@@ -4,14 +4,14 @@ import { listInvoices } from "@/app/actions/invoices";
 import { AppNav } from "@/components/AppNav";
 import { ProfitLossView } from "@/components/ProfitLossView";
 import { currentFyStartYear, type PeriodFilter } from "@/lib/period";
-import { buildProfitLossStatement } from "@/lib/profit-loss";
+import { buildProfitLossStatement, statementHeading } from "@/lib/profit-loss";
 
 type Props = {
   searchParams: Promise<{ period?: string; fyStart?: string }>;
 };
 
 export const metadata = {
-  title: "Profit & loss — Radiant Rooms Co",
+  title: `${statementHeading} — Radiant Rooms Co`,
 };
 
 function parsePeriod(value: string | undefined): PeriodFilter {
