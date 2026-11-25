@@ -86,6 +86,44 @@ describe("buildProfitLossStatement", () => {
     });
     expect(fy.periodLabel).toBe("FY 2024–25");
     expect(fy.rangeLabel).toBe("1 Jul 2024 – 30 Jun 2025");
+    expect(fy.yearToDate).toBe(false);
+  });
+
+  it("stops the current financial year on the day the statement is prepared", () => {
+    const fy = buildProfitLossStatement({
+      period: "fy",
+      now,
+      invoices: [],
+      expenses: [
+        {
+          date: "2026-08-01",
+          description: "ALDI Mobile",
+          amount: 23,
+          kind: "operating",
+          note: "Prepaid recharge",
+        },
+        {
+          date: "2026-09-01",
+          description: "School fundraiser",
+          amount: 40,
+          kind: "donation",
+        },
+      ],
+      cashJobs: [],
+    });
+    expect(fy.yearToDate).toBe(true);
+    expect(fy.rangeLabel).toBe("1 Jul 2026 – 25 Nov 2026");
+    expect(fy.preparedLabel).toBe("Prepared 25 Nov 2026");
+    expect(fy.operatingExpenses.map((row) => row.description)).toEqual([
+      "ALDI Mobile",
+    ]);
+    expect(fy.donations.map((row) => row.description)).toEqual([
+      "School fundraiser",
+    ]);
+    expect(fy.totalOperating).toBe(23);
+    expect(fy.totalDonations).toBe(40);
+    expect(fy.totalExpenses).toBe(63);
+    expect(fy.profit).toBe(-63);
   });
 });
 

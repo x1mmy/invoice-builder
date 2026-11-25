@@ -50,17 +50,20 @@ describe("fyLabel", () => {
 });
 
 describe("periodRange fy", () => {
-  it("uses current FY when fyStartYear omitted", () => {
-    const range = periodRange("fy", { now: new Date(2026, 7, 4) }); // Aug 4 2026
-    expect(range).toEqual({ from: "2026-07-01", to: "2027-06-30" });
+  it("ends the current financial year on today", () => {
+    const now = new Date("2026-11-25T01:00:00.000Z"); // 25 Nov 2026, Sydney
+    expect(periodRange("fy", { now })).toEqual({
+      from: "2026-07-01",
+      to: "2026-11-25",
+    });
   });
 
-  it("honours explicit fyStartYear", () => {
-    const range = periodRange("fy", {
-      now: new Date(2026, 7, 4),
-      fyStartYear: 2024,
+  it("keeps a finished financial year through 30 June", () => {
+    const now = new Date("2026-11-25T01:00:00.000Z");
+    expect(periodRange("fy", { now, fyStartYear: 2024 })).toEqual({
+      from: "2024-07-01",
+      to: "2025-06-30",
     });
-    expect(range).toEqual({ from: "2024-07-01", to: "2025-06-30" });
   });
 
   it("keeps month/year/all behaviour", () => {
@@ -123,7 +126,7 @@ describe("periodRange fy", () => {
     });
     expect(periodRange("fy", { now })).toEqual({
       from: "2026-07-01",
-      to: "2027-06-30",
+      to: "2026-07-01",
     });
   });
 });

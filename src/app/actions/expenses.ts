@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireAuth } from "@/lib/auth";
 import type { ExpenseRow } from "@/lib/books";
 import { periodRange, type PeriodFilter } from "@/lib/period";
-import { parseExpenseInput } from "@/lib/expense-input";
+import { parseExpenseInput, type ExpenseInput } from "@/lib/expense-input";
 import { getSupabase } from "@/lib/supabase/server";
 
 export async function listExpenses(
@@ -27,11 +27,16 @@ export async function listExpenses(
   return (data ?? []) as ExpenseRow[];
 }
 
-export async function createExpense(input: {
-  date: string;
-  description: string;
-  amount: number;
-}): Promise<{ ok: true } | { ok: false; error: string }> {
+function saveError(message: string, fallback: string): string {
+  if (/column/i.test(message) && /kind|note/i.test(message)) {
+    return "Donations need a small update in Supabase before they can be saved.";
+  }
+  return message || fallback;
+}
+
+export async function createExpense(
+  input: ExpenseInput,
+): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
     await requireAuth();
     const parsed = parseExpenseInput(input);
@@ -39,8 +44,9 @@ export async function createExpense(input: {
 
     const { error } = await getSupabase().from("expenses").insert(parsed.data);
 
-    if (error) return { ok: false, error: error.message };
+    if (error) return { ok: false, error: saveError(error.message, "Couldn’t save expense.") };
     revalidatePath("/");
+    revalidatePath("/profit-loss");
     return { ok: true };
   } catch (err) {
     return {
@@ -52,7 +58,7 @@ export async function createExpense(input: {
 
 export async function updateExpense(
   id: string,
-  input: { date: string; description: string; amount: number },
+  input: ExpenseInput,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
     await requireAuth();
@@ -64,8 +70,11 @@ export async function updateExpense(
       .update(parsed.data)
       .eq("id", id);
 
-    if (error) return { ok: false, error: error.message };
+    if (error) {
+      return { ok: false, error: saveError(error.message, "Couldn’t update expense.") };
+    }
     revalidatePath("/");
+    revalidatePath("/profit-loss");
     return { ok: true };
   } catch (err) {
     return {
@@ -83,6 +92,7 @@ export async function deleteExpense(
     const { error } = await getSupabase().from("expenses").delete().eq("id", id);
     if (error) return { ok: false, error: error.message };
     revalidatePath("/");
+    revalidatePath("/profit-loss");
     return { ok: true };
   } catch (err) {
     return {

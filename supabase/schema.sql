@@ -27,6 +27,8 @@ create table if not exists public.expenses (
   date date not null default current_date,
   description text not null default '',
   amount numeric(12, 2) not null default 0,
+  kind text not null default 'operating',
+  note text not null default '',
   created_at timestamptz not null default now()
 );
 
@@ -67,5 +69,12 @@ alter table public.cash_jobs enable row level security;
 -- All access goes through Next.js server actions with the secret key.
 
 comment on table public.invoices is 'Saved invoices; amount is income as soon as saved; Paid is manual status';
-comment on table public.expenses is 'Simple expense rows: date, description, amount';
+-- Existing books: add donation vs operating, and a short note for the record.
+alter table public.expenses add column if not exists kind text not null default 'operating';
+alter table public.expenses add column if not exists note text not null default '';
+alter table public.expenses drop constraint if exists expenses_kind_check;
+alter table public.expenses add constraint expenses_kind_check
+  check (kind in ('operating', 'donation'));
+
+comment on table public.expenses is 'Expense rows: date, description, amount, operating or donation, optional note';
 comment on table public.cash_jobs is 'Cash jobs not invoiced: date, job details, breakdown, hours, rate, extra charges, amount';

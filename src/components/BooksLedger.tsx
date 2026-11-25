@@ -404,7 +404,7 @@ export function BooksLedger({
         <DatedAmountPanel
           addTitle="Add expense"
           detailsLabel="Description"
-          detailsPlaceholder="e.g. Cleaning supplies"
+          detailsPlaceholder="e.g. ALDI Mobile or cleaning supplies"
           emptyText="No expenses in this period yet."
           totalLabel="Total expenses"
           total={totals.expenses}

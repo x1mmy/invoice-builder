@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition, type FormEvent, type ReactNode } from "react";
 import { formatDisplayDate, formatMoney } from "@/lib/calc";
+import { expenseKind, type ExpenseKind } from "@/lib/expense-input";
 import { australianDateString } from "@/lib/period";
 
 type Row = {
@@ -10,7 +11,39 @@ type Row = {
   date: string;
   description: string;
   amount: number;
+  kind?: ExpenseKind;
+  note?: string;
 };
+
+const PRESETS: {
+  label: string;
+  kind: ExpenseKind;
+  description: string;
+  amount: string;
+  note: string;
+}[] = [
+  {
+    label: "ALDI Mobile, $23",
+    kind: "operating",
+    description: "ALDI Mobile",
+    amount: "23",
+    note: "Prepaid recharge. The ALDI Mobile history is the record.",
+  },
+  {
+    label: "Donation",
+    kind: "donation",
+    description: "",
+    amount: "",
+    note: "",
+  },
+  {
+    label: "Electricity and heating",
+    kind: "operating",
+    description: "Electricity and heating",
+    amount: "",
+    note: "Working from home. Confirm the amount with the accountant before relying on it.",
+  },
+];
 
 type ActionResult = { ok: true } | { ok: false; error: string };
 
@@ -33,10 +66,18 @@ type Props = {
     date: string;
     description: string;
     amount: number;
+    kind: ExpenseKind;
+    note: string;
   }) => Promise<ActionResult>;
   onUpdate: (
     id: string,
-    input: { date: string; description: string; amount: number },
+    input: {
+      date: string;
+      description: string;
+      amount: number;
+      kind: ExpenseKind;
+      note: string;
+    },
   ) => Promise<ActionResult>;
   onDelete: (id: string) => Promise<ActionResult>;
 };
@@ -60,10 +101,14 @@ export function DatedAmountPanel({
   const [date, setDate] = useState(() => australianDateString());
   const [details, setDetails] = useState("");
   const [amount, setAmount] = useState("");
+  const [kind, setKind] = useState<ExpenseKind>("operating");
+  const [note, setNote] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDate, setEditDate] = useState("");
   const [editDetails, setEditDetails] = useState("");
   const [editAmount, setEditAmount] = useState("");
+  const [editKind, setEditKind] = useState<ExpenseKind>("operating");
+  const [editNote, setEditNote] = useState("");
 
   const onAdd = (e: FormEvent) => {
     e.preventDefault();
@@ -72,6 +117,8 @@ export function DatedAmountPanel({
         date,
         description: details,
         amount: Number(amount),
+        kind,
+        note,
       });
       if (!result.ok) {
         flash(result.error);
@@ -79,6 +126,8 @@ export function DatedAmountPanel({
       }
       setDetails("");
       setAmount("");
+      setKind("operating");
+      setNote("");
       flash(messages.saved);
       router.refresh();
     });
@@ -89,6 +138,8 @@ export function DatedAmountPanel({
     setEditDate(row.date);
     setEditDetails(row.description);
     setEditAmount(String(row.amount));
+    setEditKind(expenseKind(row.kind));
+    setEditNote(row.note ?? "");
   };
 
   const onSave = (e: FormEvent) => {
@@ -102,6 +153,8 @@ export function DatedAmountPanel({
         date: savedDate,
         description: savedDetails,
         amount: Number(savedAmount),
+        kind: editKind,
+        note: editNote,
       });
       if (!result.ok) {
         flash(result.error);
@@ -133,23 +186,50 @@ export function DatedAmountPanel({
       <h2 className="text-sm font-semibold uppercase tracking-wide text-stone-500">
         {addTitle}
       </h2>
+      <div className="flex flex-wrap gap-2">
+        {PRESETS.map((preset) => (
+          <button
+            key={preset.label}
+            type="button"
+            onClick={() => {
+              setKind(preset.kind);
+              setDetails(preset.description);
+              setAmount(preset.amount);
+              setNote(preset.note);
+            }}
+            className="min-h-11 rounded-md border border-stone-300 bg-white px-3 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50"
+          >
+            {preset.label}
+          </button>
+        ))}
+      </div>
+      <p className="text-sm text-stone-500">
+        These fill the form. Set the date of the payment, then save. Add ALDI
+        Mobile once for each recharge.
+      </p>
       <form
         onSubmit={onAdd}
-        className="grid gap-3 rounded-xl border border-stone-300/70 bg-white/70 p-4 md:grid-cols-[1fr_2fr_1fr_auto]"
+        className="grid gap-3 rounded-xl border border-stone-300/70 bg-white/70 p-4"
       >
-        <DateField value={date} onChange={setDate} />
+        <div className="grid gap-3 md:grid-cols-3">
+          <DateField value={date} onChange={setDate} />
+          <KindField value={kind} onChange={setKind} />
+          <AmountField value={amount} onChange={setAmount} />
+        </div>
         <DetailsField
           label={detailsLabel}
           value={details}
           onChange={setDetails}
-          placeholder={detailsPlaceholder}
+          placeholder={
+            kind === "donation" ? "Who it was paid to" : detailsPlaceholder
+          }
         />
-        <AmountField value={amount} onChange={setAmount} />
-        <div className="flex items-end">
+        <NoteField value={note} onChange={setNote} />
+        <div>
           <button
             type="submit"
             disabled={pending}
-            className="min-h-11 w-full rounded-md bg-[#5f7a64] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60 md:w-auto"
+            className="min-h-11 rounded-md bg-[#5f7a64] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
           >
             Save
           </button>
@@ -166,32 +246,31 @@ export function DatedAmountPanel({
             {rows.map((row) =>
               editingId === row.id ? (
                 <li key={row.id} className="px-4 py-3">
-                  <form
-                    onSubmit={onSave}
-                    className="grid gap-3 md:grid-cols-[1fr_2fr_1fr_auto_auto]"
-                  >
-                    <DateField value={editDate} onChange={setEditDate} />
+                  <form onSubmit={onSave} className="grid gap-3">
+                    <div className="grid gap-3 md:grid-cols-3">
+                      <DateField value={editDate} onChange={setEditDate} />
+                      <KindField value={editKind} onChange={setEditKind} />
+                      <AmountField value={editAmount} onChange={setEditAmount} />
+                    </div>
                     <DetailsField
                       label={detailsLabel}
                       value={editDetails}
                       onChange={setEditDetails}
                     />
-                    <AmountField value={editAmount} onChange={setEditAmount} />
-                    <div className="flex items-end">
+                    <NoteField value={editNote} onChange={setEditNote} />
+                    <div className="flex flex-wrap gap-2">
                       <button
                         type="submit"
                         disabled={pending}
-                        className="min-h-11 w-full rounded-md bg-[#5f7a64] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60 md:w-auto"
+                        className="min-h-11 rounded-md bg-[#5f7a64] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
                       >
                         Save
                       </button>
-                    </div>
-                    <div className="flex items-end">
                       <button
                         type="button"
                         disabled={pending}
                         onClick={() => setEditingId(null)}
-                        className="min-h-11 w-full rounded-md border border-stone-300 px-4 py-2.5 text-sm font-semibold text-stone-600 hover:bg-stone-50 disabled:opacity-60 md:w-auto"
+                        className="min-h-11 rounded-md border border-stone-300 px-4 py-2.5 text-sm font-semibold text-stone-600 hover:bg-stone-50 disabled:opacity-60"
                       >
                         Cancel
                       </button>
@@ -206,9 +285,21 @@ export function DatedAmountPanel({
                   <p className="text-sm text-stone-500">
                     {formatDisplayDate(row.date)}
                   </p>
-                  <p className="min-w-0 break-words font-medium text-stone-800">
-                    {row.description}
-                  </p>
+                  <div className="min-w-0">
+                    <p className="break-words font-medium text-stone-800">
+                      {row.description}
+                      {row.kind === "donation" ? (
+                        <span className="ml-2 text-xs font-semibold text-[#5f7a64]">
+                          Donation
+                        </span>
+                      ) : null}
+                    </p>
+                    {row.note ? (
+                      <p className="mt-0.5 break-words text-xs leading-5 text-stone-500">
+                        {row.note}
+                      </p>
+                    ) : null}
+                  </div>
                   <p className="break-all font-semibold tabular-nums text-stone-800 sm:text-right">
                     {formatMoney(Number(row.amount))}
                   </p>
@@ -281,6 +372,52 @@ function DetailsField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
+        className="min-h-11 w-full rounded-md border border-stone-300 px-3 py-2.5 text-sm"
+      />
+    </label>
+  );
+}
+
+function KindField({
+  value,
+  onChange,
+}: {
+  value: ExpenseKind;
+  onChange: (value: ExpenseKind) => void;
+}) {
+  return (
+    <label className="min-w-0 space-y-1">
+      <span className="text-xs font-medium text-stone-500">Type</span>
+      <select
+        value={value}
+        onChange={(e) => onChange(expenseKind(e.target.value))}
+        className="min-h-11 w-full rounded-md border border-stone-300 bg-white px-3 py-2.5 text-sm"
+      >
+        <option value="operating">Operating expense</option>
+        <option value="donation">Donation</option>
+      </select>
+    </label>
+  );
+}
+
+function NoteField({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="min-w-0 space-y-1">
+      <span className="text-xs font-medium text-stone-500">
+        Note, if you have no receipt
+      </span>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        maxLength={240}
+        placeholder="How it was paid. For example: prepaid ALDI Mobile recharge."
         className="min-h-11 w-full rounded-md border border-stone-300 px-3 py-2.5 text-sm"
       />
     </label>
