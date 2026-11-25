@@ -5,7 +5,7 @@ import { useState } from "react";
 import { BUSINESS } from "@/lib/business";
 import { formatMoney } from "@/lib/calc";
 import { formatLongDate, fyLabel, type PeriodFilter } from "@/lib/period";
-import type { ProfitLossStatement } from "@/lib/profit-loss";
+import { profitReceivedNote, type ProfitLossStatement } from "@/lib/profit-loss";
 import { downloadStatementPdf } from "@/lib/profit-loss-pdf";
 
 type Props = {
@@ -121,7 +121,7 @@ export function ProfitLossView({ statement, fyStartYear }: Props) {
         ) : null}
       </header>
 
-      <article className="bg-white px-5 py-8 text-stone-900 shadow-sm sm:px-12 sm:py-11">
+      <article className="border border-[#eaeaea] bg-white px-5 py-8 text-[#2f3437] sm:px-12 sm:py-12">
         <p className="text-sm font-semibold tracking-wide">{BUSINESS.name}</p>
         <p className="mt-0.5 text-xs text-stone-500">ABN {BUSINESS.abn}</p>
         <p className="mt-8 font-[family-name:var(--font-display)] text-4xl font-semibold leading-none">
@@ -158,7 +158,7 @@ export function ProfitLossView({ statement, fyStartYear }: Props) {
             <p className="mt-3 text-sm text-stone-500">No expenses in this period.</p>
           ) : (
             <div className="mt-3">
-              <div className="grid grid-cols-[5.6rem_minmax(0,1fr)_auto] gap-x-3 border-b border-stone-200 pb-1.5 text-[11px] font-semibold tracking-wide text-stone-500">
+              <div className="grid grid-cols-[5.8rem_minmax(0,1fr)_auto] gap-x-4 border-b border-[#eaeaea] pb-2 text-[11px] font-medium tracking-[0.08em] text-[#787774]">
                 <span>DATE</span>
                 <span>DESCRIPTION</span>
                 <span className="text-right">AMOUNT</span>
@@ -167,7 +167,7 @@ export function ProfitLossView({ statement, fyStartYear }: Props) {
                 {statement.expenses.map((row, index) => (
                   <li
                     key={`${row.date}-${index}`}
-                    className="grid grid-cols-[5.6rem_minmax(0,1fr)_auto] gap-x-3 border-b border-stone-100 py-1.5 text-sm"
+                    className="grid grid-cols-[5.8rem_minmax(0,1fr)_auto] items-baseline gap-x-4 py-2.5 text-sm leading-6"
                   >
                     <span className="text-stone-600">{formatLongDate(row.date)}</span>
                     <span className="min-w-0 break-words">
@@ -196,9 +196,7 @@ export function ProfitLossView({ statement, fyStartYear }: Props) {
           </h2>
           <AmountLine label="Profit" amount={statement.profit} hero />
           <p className="mt-4 text-sm leading-relaxed text-stone-500">
-            Profit is invoiced plus cash jobs, minus expenses. Received is the
-            sum of invoices marked Paid in this period. Paid status does not
-            change Profit.
+            {profitReceivedNote}
           </p>
           <div className="mt-3">
             <AmountLine label="Received" amount={statement.received} />

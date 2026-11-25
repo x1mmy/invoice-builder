@@ -2,6 +2,7 @@ import { BUSINESS } from "@/lib/business";
 import { formatMoney } from "@/lib/calc";
 import { formatLongDate } from "@/lib/period";
 import {
+  profitReceivedNote,
   statementPdfFilename,
   type ProfitLossStatement,
   type StatementExpense,
@@ -10,24 +11,21 @@ import type { jsPDF } from "jspdf";
 
 const PAGE_W = 210;
 const PAGE_H = 297;
-const LEFT = 16;
-const RIGHT = PAGE_W - 16;
+const LEFT = 20;
+const RIGHT = PAGE_W - 20;
 const TOP = 18;
 const BOTTOM = 18;
 const WIDTH = RIGHT - LEFT;
 
-const DATE_W = 32;
-const AMOUNT_W = 34;
-const DESC_X = LEFT + DATE_W;
-const DESC_W = WIDTH - DATE_W - AMOUNT_W;
+const DATE_W = 34;
+const AMOUNT_W = 32;
+const DESC_X = LEFT + DATE_W + 4;
+const DESC_W = WIDTH - DATE_W - AMOUNT_W - 8;
 
-const INK: [number, number, number] = [41, 37, 36];
-const MUTED: [number, number, number] = [120, 113, 108];
+const INK: [number, number, number] = [47, 52, 55];
+const MUTED: [number, number, number] = [120, 119, 116];
 const SAGE: [number, number, number] = [95, 122, 100];
-const HAIR: [number, number, number] = [214, 211, 209];
-
-const RECEIVED_NOTE =
-  "Profit is invoiced plus cash jobs, minus expenses. Received is the sum of invoices marked Paid in this period. Paid status does not change Profit.";
+const HAIR: [number, number, number] = [226, 225, 221];
 
 function pdfMoney(amount: number): string {
   return formatMoney(amount)
@@ -55,59 +53,76 @@ function fits(y: number, needed: number): boolean {
   return y + needed <= PAGE_H - BOTTOM;
 }
 
+function scaleFactor(pdf: jsPDF): number {
+  return (pdf.internal as { scaleFactor: number }).scaleFactor;
+}
+
+/** Distance from one baseline to the next, in millimetres. */
+function baselineStep(pdf: jsPDF): number {
+  return pdf.getLineHeight() / scaleFactor(pdf);
+}
+
+/** Millimetres from this baseline to the next row, including wrapped lines. */
+function blockHeight(pdf: jsPDF, lineCount: number): number {
+  const step = baselineStep(pdf);
+  const descender = pdf.getFontSize() * 0.3 / scaleFactor(pdf);
+  const quiet = 3.6;
+  return Math.max(7.4, (Math.max(lineCount, 1) - 1) * step + descender + quiet);
+}
+
 function drawContinuedHeader(pdf: jsPDF, statement: ProfitLossStatement): number {
   let y = TOP;
-  pdf.setFont("helvetica", "bold");
+  pdf.setFont("times", "bold");
   pdf.setFontSize(11);
   ink(pdf, INK);
   pdf.text(BUSINESS.name, LEFT, y);
-  pdf.setFont("helvetica", "normal");
+  pdf.setFont("times", "italic");
   pdf.text("Profit & loss", RIGHT, y, { align: "right" });
-  y += 5;
+  y += 5.5;
+  pdf.setFont("times", "normal");
   pdf.setFontSize(9);
   ink(pdf, MUTED);
-  pdf.text(`${statement.periodLabel}  |  ${statement.rangeLabel}`, LEFT, y);
-  y += 3.2;
-  rule(pdf, y, SAGE, 0.35);
-  return y + 8;
+  pdf.text(`${statement.periodLabel}   ${statement.rangeLabel}`, LEFT, y);
+  y += 3.4;
+  rule(pdf, y, HAIR, 0.2);
+  return y + 9;
 }
 
 function drawFirstHeader(pdf: jsPDF, statement: ProfitLossStatement): number {
   let y = TOP;
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(12);
+  pdf.setFont("times", "bold");
+  pdf.setFontSize(11);
   ink(pdf, INK);
-  pdf.text(BUSINESS.name, LEFT, y);
-  y += 5;
-  pdf.setFont("helvetica", "normal");
+  pdf.text(BUSINESS.name.toUpperCase(), LEFT, y);
+  pdf.setFont("times", "normal");
   pdf.setFontSize(9);
   ink(pdf, MUTED);
-  pdf.text(`ABN ${BUSINESS.abn}`, LEFT, y);
-  y += 12;
+  pdf.text(`ABN ${BUSINESS.abn}`, RIGHT, y, { align: "right" });
+  y += 8;
   pdf.setFont("times", "bold");
-  pdf.setFontSize(22);
+  pdf.setFontSize(26);
   ink(pdf, INK);
   pdf.text("Profit & loss", LEFT, y);
   y += 8;
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(11);
+  pdf.setFont("times", "bold");
+  pdf.setFontSize(12);
   pdf.text(statement.periodLabel, LEFT, y);
   y += 5.5;
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(10);
+  pdf.setFont("times", "italic");
+  pdf.setFontSize(11);
   ink(pdf, MUTED);
   pdf.text(statement.rangeLabel, LEFT, y);
-  y += 4;
-  rule(pdf, y, SAGE, 0.7);
-  return y + 9;
+  y += 4.5;
+  rule(pdf, y, SAGE, 0.4);
+  return y + 10;
 }
 
 function sectionLabel(pdf: jsPDF, y: number, label: string): number {
-  pdf.setFont("helvetica", "bold");
+  pdf.setFont("times", "bold");
   pdf.setFontSize(9);
   ink(pdf, SAGE);
   pdf.text(label, LEFT, y);
-  return y + 6.5;
+  return y + 7;
 }
 
 function moneyLine(
@@ -117,38 +132,30 @@ function moneyLine(
   amount: number,
   emphasis = false,
 ): number {
-  pdf.setFont("helvetica", emphasis ? "bold" : "normal");
-  pdf.setFontSize(emphasis ? 11 : 10);
+  pdf.setFont("times", emphasis ? "bold" : "normal");
+  pdf.setFontSize(emphasis ? 12 : 11);
   ink(pdf, INK);
   pdf.text(label, LEFT, y);
   pdf.text(pdfMoney(amount), RIGHT, y, { align: "right" });
-  return y + (emphasis ? 7 : 5.8);
-}
-
-function hairline(pdf: jsPDF, y: number): number {
-  rule(pdf, y, HAIR, 0.2);
-  return y + 5.5;
+  return y + (emphasis ? 8 : 6.4);
 }
 
 function expenseColumns(pdf: jsPDF, y: number): number {
-  pdf.setFont("helvetica", "bold");
+  pdf.setFont("times", "normal");
   pdf.setFontSize(8);
   ink(pdf, MUTED);
   pdf.text("DATE", LEFT, y);
   pdf.text("DESCRIPTION", DESC_X, y);
   pdf.text("AMOUNT", RIGHT, y, { align: "right" });
-  return hairline(pdf, y + 1.6);
+  rule(pdf, y + 2.6, HAIR, 0.2);
+  return y + 8;
 }
 
 function descriptionLines(pdf: jsPDF, description: string): string[] {
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(10);
+  pdf.setFont("times", "normal");
+  pdf.setFontSize(11);
   const lines = pdf.splitTextToSize(description || "-", DESC_W);
   return lines.length ? lines : ["-"];
-}
-
-function rowHeight(lineCount: number): number {
-  return Math.max(6.2, lineCount * 4.4 + 1.8);
 }
 
 function drawExpenseRow(
@@ -157,44 +164,44 @@ function drawExpenseRow(
   row: StatementExpense,
   lines: string[],
 ): number {
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(10);
+  pdf.setFont("times", "normal");
+  pdf.setFontSize(11);
   ink(pdf, INK);
   pdf.text(formatLongDate(row.date), LEFT, y);
-  pdf.text(lines, DESC_X, y, { lineHeightFactor: 1.25 });
+  pdf.text(lines, DESC_X, y);
   pdf.text(pdfMoney(row.amount), RIGHT, y, { align: "right" });
-  const next = y + rowHeight(lines.length);
-  rule(pdf, next - 1.4, HAIR, 0.15);
-  return next;
+  return y + blockHeight(pdf, lines.length);
 }
 
 function noteLines(pdf: jsPDF): string[] {
-  pdf.setFont("helvetica", "normal");
+  pdf.setFont("times", "italic");
   pdf.setFontSize(9);
-  return pdf.splitTextToSize(RECEIVED_NOTE, WIDTH);
+  return pdf.splitTextToSize(profitReceivedNote, WIDTH * 0.72);
+}
+
+function noteAdvance(pdf: jsPDF, lineCount: number): number {
+  return blockHeight(pdf, lineCount) + 2;
 }
 
 function profitBlockHeight(pdf: jsPDF): number {
-  return 4 + 8 + 8 + noteLines(pdf).length * 4.2 + 6 + 6;
+  return 18 + noteAdvance(pdf, noteLines(pdf).length) + 4;
 }
 
 function drawProfitBlock(pdf: jsPDF, y: number, statement: ProfitLossStatement) {
-  rule(pdf, y, SAGE, 0.45);
+  rule(pdf, y, SAGE, 0.35);
   y += 8;
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(14);
+  pdf.setFont("times", "bold");
+  pdf.setFontSize(16);
   ink(pdf, INK);
   pdf.text("Profit", LEFT, y);
   pdf.text(pdfMoney(statement.profit), RIGHT, y, { align: "right" });
   y += 8;
   const lines = noteLines(pdf);
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(9);
   ink(pdf, MUTED);
-  pdf.text(lines, LEFT, y, { lineHeightFactor: 1.3 });
-  y += lines.length * 4.2 + 5;
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(10);
+  pdf.text(lines, LEFT, y);
+  y += noteAdvance(pdf, lines.length);
+  pdf.setFont("times", "normal");
+  pdf.setFontSize(11);
   ink(pdf, INK);
   pdf.text("Received", LEFT, y);
   pdf.text(pdfMoney(statement.received), RIGHT, y, { align: "right" });
@@ -204,7 +211,7 @@ function stampPageNumbers(pdf: jsPDF) {
   const total = pdf.getNumberOfPages();
   for (let page = 1; page <= total; page += 1) {
     pdf.setPage(page);
-    pdf.setFont("helvetica", "normal");
+    pdf.setFont("times", "normal");
     pdf.setFontSize(8);
     ink(pdf, MUTED);
     pdf.text(`${page} / ${total}`, RIGHT, PAGE_H - 10, { align: "right" });
@@ -223,7 +230,9 @@ export function renderStatementPdf(pdf: jsPDF, statement: ProfitLossStatement): 
   y = sectionLabel(pdf, y, "INCOME");
   y = moneyLine(pdf, y, "Invoiced", statement.invoiced);
   y = moneyLine(pdf, y, "Cash jobs", statement.cashJobs);
-  y = hairline(pdf, y);
+  y += 1.5;
+  rule(pdf, y, HAIR, 0.25);
+  y += 6;
   y = moneyLine(pdf, y, "Total income", statement.totalIncome, true);
   y += 4;
 
@@ -240,26 +249,27 @@ export function renderStatementPdf(pdf: jsPDF, statement: ProfitLossStatement): 
   else startExpenses(false);
 
   if (statement.expenses.length === 0) {
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(10);
+    pdf.setFont("times", "italic");
+    pdf.setFontSize(11);
     ink(pdf, MUTED);
     pdf.text("No expenses in this period.", LEFT, y);
     y += 8;
   } else {
     for (const row of statement.expenses) {
       const lines = descriptionLines(pdf, row.description);
-      const height = rowHeight(lines.length);
+      const height = blockHeight(pdf, lines.length);
       if (!fits(y, height)) startExpenses(true);
       y = drawExpenseRow(pdf, y, row, lines);
     }
   }
 
-  if (!fits(y, 8)) {
+  if (!fits(y, 16)) {
     pdf.addPage();
     y = drawContinuedHeader(pdf, statement);
   }
-  if (statement.expenses.length === 0) y = hairline(pdf, y);
-  else y += 3.2;
+  y += 2;
+  rule(pdf, y, HAIR, 0.25);
+  y += 6;
   y = moneyLine(pdf, y, "Total expenses", statement.totalExpenses, true);
   y += 3;
 
