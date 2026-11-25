@@ -2,6 +2,7 @@ import { BUSINESS } from "@/lib/business";
 import { formatMoney } from "@/lib/calc";
 import { formatLongDate } from "@/lib/period";
 import {
+  donationNote,
   profitReceivedNote,
   statementPdfFilename,
   type ProfitLossStatement,
@@ -120,7 +121,14 @@ function drawFirstHeader(pdf: jsPDF, statement: ProfitLossStatement): number {
   pdf.setFont("times", "italic");
   pdf.setFontSize(11);
   ink(pdf, MUTED);
+  if (statement.yearToDate) {
+    pdf.text("Year to date", LEFT, y);
+    y += 5;
+  }
   pdf.text(statement.rangeLabel, LEFT, y);
+  y += 4.5;
+  pdf.setFontSize(10);
+  pdf.text(statement.preparedLabel, LEFT, y);
   y += 4.5;
   rule(pdf, y, SAGE, 0.4);
   return y + 10;
@@ -160,10 +168,13 @@ function expenseColumns(pdf: jsPDF, y: number): number {
   return y + 8;
 }
 
-function descriptionLines(pdf: jsPDF, description: string): string[] {
+function rowLines(pdf: jsPDF, row: StatementExpense): string[] {
+  const text = row.note
+    ? `${row.description || "-"}\n${row.note}`
+    : row.description || "-";
   pdf.setFont("times", "normal");
   pdf.setFontSize(11);
-  const lines = pdf.splitTextToSize(description || "-", DESC_W);
+  const lines = pdf.splitTextToSize(text, DESC_W);
   return lines.length ? lines : ["-"];
 }
 
@@ -245,37 +256,75 @@ export function renderStatementPdf(pdf: jsPDF, statement: ProfitLossStatement): 
   y = moneyLine(pdf, y, "Total income", statement.totalIncome, true);
   y += 4;
 
-  const startExpenses = (continued: boolean) => {
-    if (continued) {
-      pdf.addPage();
-      y = drawContinuedHeader(pdf, statement);
-    }
-    y = sectionLabel(pdf, y, "EXPENSES");
-    y = expenseColumns(pdf, y);
-  };
-
-  if (!fits(y, 24)) startExpenses(true);
-  else startExpenses(false);
-
-  if (statement.expenses.length === 0) {
-    pdf.setFont("times", "italic");
-    pdf.setFontSize(11);
-    ink(pdf, MUTED);
-    pdf.text("No expenses in this period.", LEFT, y);
-    y += 8;
-  } else {
-    for (const row of statement.expenses) {
-      const lines = descriptionLines(pdf, row.description);
-      const height = blockHeight(pdf, lines.length);
-      if (!fits(y, height)) startExpenses(true);
-      y = drawExpenseRow(pdf, y, row, lines);
-    }
-  }
-
-  if (!fits(y, 16)) {
+  const beginPage = () => {
     pdf.addPage();
     y = drawContinuedHeader(pdf, statement);
+  };
+
+  const groups: {
+    title: string;
+    rows: StatementExpense[];
+    totalLabel: string;
+    total: number;
+    footnote: string | null;
+  }[] = [
+    {
+      title: "OPERATING EXPENSES",
+      rows: statement.operatingExpenses,
+      totalLabel: "Total operating expenses",
+      total: statement.totalOperating,
+      footnote: null,
+    },
+    {
+      title: "DONATIONS",
+      rows: statement.donations,
+      totalLabel: "Total donations",
+      total: statement.totalDonations,
+      footnote: donationNote,
+    },
+  ];
+
+  for (const group of groups) {
+    if (!fits(y, 28)) beginPage();
+    y = sectionLabel(pdf, y, group.title);
+    if (group.rows.length === 0) {
+      pdf.setFont("times", "italic");
+      pdf.setFontSize(11);
+      ink(pdf, MUTED);
+      pdf.text("None in this period.", LEFT, y);
+      y += 8;
+    } else {
+      y = expenseColumns(pdf, y);
+      for (const row of group.rows) {
+        const lines = rowLines(pdf, row);
+        const height = blockHeight(pdf, lines.length);
+        if (!fits(y, height)) {
+          beginPage();
+          y = sectionLabel(pdf, y, group.title);
+          y = expenseColumns(pdf, y);
+        }
+        y = drawExpenseRow(pdf, y, row, lines);
+      }
+    }
+    if (!fits(y, group.footnote ? 32 : 16)) beginPage();
+    y += 2;
+    rule(pdf, y, HAIR, 0.25);
+    y += 6;
+    y = moneyLine(pdf, y, group.totalLabel, group.total, true);
+    if (group.footnote) {
+      pdf.setFont("times", "italic");
+      pdf.setFontSize(9);
+      const lines = pdf.splitTextToSize(group.footnote, WIDTH);
+      const advance = noteAdvance(pdf, lines.length);
+      if (!fits(y, advance)) beginPage();
+      ink(pdf, MUTED);
+      pdf.text(lines, LEFT, y);
+      y += advance;
+    }
+    y += 3;
   }
+
+  if (!fits(y, 16)) beginPage();
   y += 2;
   rule(pdf, y, HAIR, 0.25);
   y += 6;

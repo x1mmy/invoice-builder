@@ -14,6 +14,28 @@ describe("parseExpenseInput", () => {
         date: "2026-08-04",
         description: "Supplies",
         amount: 12.35,
+        kind: "operating",
+        note: "",
+      },
+    });
+  });
+
+  it("keeps a donation and trims the note", () => {
+    const result = parseExpenseInput({
+      date: "2026-08-04",
+      description: " School fundraiser ",
+      amount: 50,
+      kind: "donation",
+      note: "  Paid from the business account  ",
+    });
+    expect(result).toEqual({
+      ok: true,
+      data: {
+        date: "2026-08-04",
+        description: "School fundraiser",
+        amount: 50,
+        kind: "donation",
+        note: "Paid from the business account",
       },
     });
   });

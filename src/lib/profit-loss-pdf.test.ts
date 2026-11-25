@@ -28,7 +28,10 @@ describe("renderStatementPdf", () => {
     expect(pdf.getNumberOfPages()).toBe(1);
     const raw = Buffer.from(pdf.output("arraybuffer")).toString("latin1");
     expect(raw).toContain("Profit & loss");
-    expect(raw).toContain("No expenses in this period.");
+    expect(raw).toContain("OPERATING EXPENSES");
+    expect(raw).toContain("DONATIONS");
+    expect(raw).toContain("None in this period.");
+    expect(raw).toContain("Prepared 25 Nov 2026");
     expect(raw).toContain("ABN 89 766 007 046");
     expect(raw).toContain("Zamilah Pervez");
   });

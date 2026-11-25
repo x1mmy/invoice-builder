@@ -45,12 +45,12 @@ Sum of invoices dated in the selected period that are marked Paid. This uses the
 _Avoid_: Cash, collected, cleared
 
 **Financial year (FY)**:
-Australian FY 1 July – 30 June, labelled e.g. FY 2025–26. Default Books period.
+Australian FY 1 July – 30 June, labelled e.g. FY 2025–26. Default Books period. The current financial year is year to date: 1 July through today, the day the statement is prepared. A finished financial year still runs through 30 June.
 _Avoid_: Tax year (unless talking to accountant informally)
 
 **Expense**:
-A simple cost row with date, description, and amount (AUD).
-_Avoid_: Outgoing, cost category, bill
+A cost row with date, description, and amount (AUD). It is either an operating expense or a donation. An optional note records how it was paid when there is no receipt. Donations reduce Profit on the statement. Whether a donation reduces tax is for the accountant.
+_Avoid_: Outgoing, bill
 
 **Cash job**:
 A completed job paid in cash (not invoiced), logged on **Cash jobs** (`/cash-jobs`) with date, job details, breakdown, total hours, hourly rate, other fees/charges, and amount (hours × rate + other fees). Counts toward Profit and has its own supporting figure on Books; it does not change Invoiced or Received.
@@ -61,5 +61,5 @@ Invoiced plus Cash jobs minus Expenses for the selected period (Paid status does
 _Avoid_: Margin, net, earnings
 
 **Profit & loss**:
-A statement of Income (Invoiced and Cash jobs), each Expense, and Profit for a chosen period, with a PDF download. Periods: This month, a chosen financial year (default the current FY), Calendar year, Last 3 months, Last 6 months, Last 12 months, or All time. Last 3, 6, and 12 months end today and start on the first day of that span, including the current month. Received is shown on the statement and does not change Profit.
+A statement of Income (Invoiced and Cash jobs), operating expenses, donations, and Profit for a chosen period, with a PDF download. The current financial year shows year to date, from 1 July to the day the statement is prepared. Periods: This month, a chosen financial year (default the current FY), Calendar year, Last 3 months, Last 6 months, Last 12 months, or All time. Last 3, 6, and 12 months end today and start on the first day of that span, including the current month. Received is shown on the statement and does not change Profit.
 _Avoid_: P&L, income statement, report

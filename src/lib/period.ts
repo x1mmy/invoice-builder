@@ -126,9 +126,13 @@ export function periodRange(
 
   if (period === "fy") {
     const start = options.fyStartYear ?? currentFyStartYear(now);
+    const from = `${start}-07-01`;
+    const fullEnd = `${start + 1}-06-30`;
+    const today = australianDateString(now);
+    const current = start === currentFyStartYear(now);
     return {
-      from: `${start}-07-01`,
-      to: `${start + 1}-06-30`,
+      from,
+      to: current && today >= from && today < fullEnd ? today : fullEnd,
     };
   }
 

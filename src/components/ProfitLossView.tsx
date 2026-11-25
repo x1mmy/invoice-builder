@@ -5,7 +5,12 @@ import { useState } from "react";
 import { BUSINESS } from "@/lib/business";
 import { formatMoney } from "@/lib/calc";
 import { formatLongDate, fyLabel, type PeriodFilter } from "@/lib/period";
-import { profitReceivedNote, type ProfitLossStatement } from "@/lib/profit-loss";
+import {
+  donationNote,
+  profitReceivedNote,
+  type ProfitLossStatement,
+  type StatementExpense,
+} from "@/lib/profit-loss";
 import { downloadStatementPdf } from "@/lib/profit-loss-pdf";
 
 type Props = {
@@ -129,7 +134,11 @@ export function ProfitLossView({ statement, fyStartYear }: Props) {
           Profit & loss
         </p>
         <p className="mt-3 text-sm font-semibold">{statement.periodLabel}</p>
+        {statement.yearToDate ? (
+          <p className="mt-1 text-sm font-semibold">Year to date</p>
+        ) : null}
         <p className="mt-1 text-sm text-stone-500">{statement.rangeLabel}</p>
+        <p className="mt-1 text-xs text-stone-500">{statement.preparedLabel}</p>
         <div className="mt-4 h-0.5 bg-[#5f7a64]" />
 
         <section className="mt-6" aria-labelledby="pl-income">
@@ -148,48 +157,28 @@ export function ProfitLossView({ statement, fyStartYear }: Props) {
           </div>
         </section>
 
-        <section className="mt-8" aria-labelledby="pl-expenses">
-          <h2
-            id="pl-expenses"
-            className="text-xs font-semibold tracking-[0.14em] text-[#5f7a64]"
-          >
-            EXPENSES
-          </h2>
-          {statement.expenses.length === 0 ? (
-            <p className="mt-3 text-sm text-stone-500">No expenses in this period.</p>
-          ) : (
-            <div className="mt-3">
-              <div className="grid grid-cols-[5.8rem_minmax(0,1fr)_auto] gap-x-4 border-b border-[#eaeaea] pb-2 text-[11px] font-medium tracking-[0.08em] text-[#787774]">
-                <span>DATE</span>
-                <span>DESCRIPTION</span>
-                <span className="text-right">AMOUNT</span>
-              </div>
-              <ul>
-                {statement.expenses.map((row, index) => (
-                  <li
-                    key={`${row.date}-${index}`}
-                    className="grid grid-cols-[5.8rem_minmax(0,1fr)_auto] items-baseline gap-x-4 py-2.5 text-sm leading-6"
-                  >
-                    <span className="text-stone-600">{formatLongDate(row.date)}</span>
-                    <span className="min-w-0 break-words">
-                      {row.description || "—"}
-                    </span>
-                    <span className="text-right tabular-nums">
-                      {formatMoney(row.amount)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          <div className="mt-3 border-t border-stone-200 pt-2">
-            <AmountLine
-              label="Total expenses"
-              amount={statement.totalExpenses}
-              strong
-            />
-          </div>
-        </section>
+        <ExpenseGroup
+          id="pl-operating"
+          title="Operating expenses"
+          rows={statement.operatingExpenses}
+          totalLabel="Total operating expenses"
+          total={statement.totalOperating}
+        />
+        <ExpenseGroup
+          id="pl-donations"
+          title="Donations"
+          rows={statement.donations}
+          totalLabel="Total donations"
+          total={statement.totalDonations}
+          note={donationNote}
+        />
+        <div className="mt-3 border-t border-stone-200 pt-2">
+          <AmountLine
+            label="Total expenses"
+            amount={statement.totalExpenses}
+            strong
+          />
+        </div>
 
         <section className="mt-8 border-t-2 border-[#5f7a64] pt-4" aria-labelledby="pl-profit">
           <h2 id="pl-profit" className="sr-only">
@@ -205,6 +194,69 @@ export function ProfitLossView({ statement, fyStartYear }: Props) {
         </section>
       </article>
     </div>
+  );
+}
+
+function ExpenseGroup({
+  id,
+  title,
+  rows,
+  totalLabel,
+  total,
+  note,
+}: {
+  id: string;
+  title: string;
+  rows: StatementExpense[];
+  totalLabel: string;
+  total: number;
+  note?: string;
+}) {
+  return (
+    <section className="mt-8" aria-labelledby={id}>
+      <h2
+        id={id}
+        className="text-xs font-semibold tracking-[0.14em] text-[#5f7a64]"
+      >
+        {title}
+      </h2>
+      {rows.length === 0 ? (
+        <p className="mt-3 text-sm text-stone-500">None in this period.</p>
+      ) : (
+        <div className="mt-3">
+          <div className="grid grid-cols-[5.8rem_minmax(0,1fr)_auto] gap-x-4 border-b border-[#eaeaea] pb-2 text-[11px] font-medium tracking-[0.08em] text-[#787774]">
+            <span>DATE</span>
+            <span>DESCRIPTION</span>
+            <span className="text-right">AMOUNT</span>
+          </div>
+          <ul>
+            {rows.map((row, index) => (
+              <li
+                key={`${row.kind}-${row.date}-${index}`}
+                className="grid grid-cols-[5.8rem_minmax(0,1fr)_auto] items-baseline gap-x-4 py-2.5 text-sm leading-6"
+              >
+                <span className="text-stone-600">{formatLongDate(row.date)}</span>
+                <span className="min-w-0 break-words">
+                  {row.description || "—"}
+                  {row.note ? (
+                    <span className="mt-0.5 block text-xs leading-5 text-stone-500">
+                      {row.note}
+                    </span>
+                  ) : null}
+                </span>
+                <span className="text-right tabular-nums">
+                  {formatMoney(row.amount)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <div className="mt-3 border-t border-stone-200 pt-2">
+        <AmountLine label={totalLabel} amount={total} strong />
+      </div>
+      {note ? <p className="mt-2 text-xs leading-5 text-stone-500">{note}</p> : null}
+    </section>
   );
 }
 

@@ -19,6 +19,8 @@ export type ExpenseRow = {
   date: string;
   description: string;
   amount: number;
+  kind?: "operating" | "donation";
+  note?: string;
   created_at: string;
 };
 
