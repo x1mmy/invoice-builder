@@ -4,10 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logoutAction } from "@/app/actions/auth";
 import { Logo } from "@/components/Logo";
+import { statementHeading } from "@/lib/profit-loss";
 
 const links = [
   { href: "/", label: "Books" },
-  { href: "/profit-loss", label: "Profit & Loss" },
+  { href: "/profit-loss", label: statementHeading },
   { href: "/cash-jobs", label: "Cash jobs" },
   { href: "/invoice/new", label: "New invoice" },
 ] as const;

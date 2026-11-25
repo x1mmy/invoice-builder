@@ -8,6 +8,7 @@ import { formatLongDate, fyLabel, type PeriodFilter } from "@/lib/period";
 import {
   donationNote,
   profitReceivedNote,
+  statementHeading,
   type ProfitLossStatement,
   type StatementExpense,
 } from "@/lib/profit-loss";
@@ -61,7 +62,7 @@ export function ProfitLossView({ statement, fyStartYear }: Props) {
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="font-[family-name:var(--font-display)] text-3xl font-semibold text-stone-800">
-              Profit & Loss
+              {statementHeading}
             </h1>
             <p className="text-sm text-stone-500">
               Income, expenses, and profit for the period you choose
@@ -131,7 +132,7 @@ export function ProfitLossView({ statement, fyStartYear }: Props) {
         <p className="mt-1 text-sm text-stone-700">{BUSINESS.owner}</p>
         <p className="mt-0.5 text-xs text-stone-500">ABN {BUSINESS.abn}</p>
         <p className="mt-8 font-[family-name:var(--font-display)] text-4xl font-semibold leading-none">
-          Profit & Loss
+          {statementHeading}
         </p>
         <p className="mt-3 text-sm font-semibold">{statement.periodLabel}</p>
         {statement.yearToDate ? (
