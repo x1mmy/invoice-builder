@@ -7,7 +7,7 @@ import { Logo } from "@/components/Logo";
 
 const links = [
   { href: "/", label: "Books" },
-  { href: "/profit-loss", label: "Profit & loss" },
+  { href: "/profit-loss", label: "Profit & Loss" },
   { href: "/cash-jobs", label: "Cash jobs" },
   { href: "/invoice/new", label: "New invoice" },
 ] as const;

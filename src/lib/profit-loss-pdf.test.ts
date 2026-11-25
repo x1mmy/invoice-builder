@@ -27,7 +27,7 @@ describe("renderStatementPdf", () => {
     );
     expect(pdf.getNumberOfPages()).toBe(1);
     const raw = Buffer.from(pdf.output("arraybuffer")).toString("latin1");
-    expect(raw).toContain("Profit & loss");
+    expect(raw).toContain("Profit & Loss");
     expect(raw).toContain("OPERATING EXPENSES");
     expect(raw).toContain("DONATIONS");
     expect(raw).toContain("None in this period.");

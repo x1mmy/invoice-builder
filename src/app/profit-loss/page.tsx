@@ -11,7 +11,7 @@ type Props = {
 };
 
 export const metadata = {
-  title: "Profit & loss — Radiant Rooms Co",
+  title: "Profit & Loss — Radiant Rooms Co",
 };
 
 function parsePeriod(value: string | undefined): PeriodFilter {
