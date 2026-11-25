@@ -123,6 +123,7 @@ export function ProfitLossView({ statement, fyStartYear }: Props) {
 
       <article className="border border-[#eaeaea] bg-white px-5 py-8 text-[#2f3437] sm:px-12 sm:py-12">
         <p className="text-sm font-semibold tracking-wide">{BUSINESS.name}</p>
+        <p className="mt-1 text-sm text-stone-700">{BUSINESS.owner}</p>
         <p className="mt-0.5 text-xs text-stone-500">ABN {BUSINESS.abn}</p>
         <p className="mt-8 font-[family-name:var(--font-display)] text-4xl font-semibold leading-none">
           Profit & loss
