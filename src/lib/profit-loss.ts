@@ -1,8 +1,9 @@
 import { sumReceived } from "@/lib/books";
-import type { ExpenseKind } from "@/lib/expense-input";
+import { expenseKind, type ExpenseKind } from "@/lib/expense-input";
 import {
   australianDateString,
   formatLongDate,
+  isYearToDate,
   periodRange,
   periodTitle,
   profit,
@@ -65,7 +66,8 @@ function roundMoney(n: number): number {
 }
 
 export function buildProfitLossStatement(input: StatementInput): ProfitLossStatement {
-  const options = { now: input.now, fyStartYear: input.fyStartYear };
+  const now = input.now ?? new Date();
+  const options = { now, fyStartYear: input.fyStartYear };
   const range = periodRange(input.period, options);
   const invoiced = sumAmounts(input.invoices);
   const cashJobs = sumAmounts(input.cashJobs);
@@ -75,23 +77,20 @@ export function buildProfitLossStatement(input: StatementInput): ProfitLossState
       if (byDate !== 0) return byDate;
       return (a.created_at ?? "").localeCompare(b.created_at ?? "");
     })
-    .map((row) => {
-      const kind: ExpenseKind = row.kind === "donation" ? "donation" : "operating";
-      return {
-        date: row.date,
-        description: row.description.trim(),
-        amount: roundMoney(Number(row.amount || 0)),
-        kind,
-        note: (row.note ?? "").trim(),
-      };
-    });
+    .map((row) => ({
+      date: row.date,
+      description: row.description.trim(),
+      amount: roundMoney(Number(row.amount || 0)),
+      kind: expenseKind(row.kind),
+      note: (row.note ?? "").trim(),
+    }));
   const operatingExpenses = expenses.filter((row) => row.kind === "operating");
   const donations = expenses.filter((row) => row.kind === "donation");
   const totalOperating = sumAmounts(operatingExpenses);
   const totalDonations = sumAmounts(donations);
-  const totalExpenses = roundMoney(totalOperating + totalDonations);
+  const totalExpenses = sumAmounts(expenses);
   const totalIncome = roundMoney(invoiced + cashJobs);
-  const preparedOn = australianDateString(options.now ?? new Date());
+  const preparedOn = australianDateString(now);
 
   return {
     period: input.period,
@@ -102,7 +101,7 @@ export function buildProfitLossStatement(input: StatementInput): ProfitLossState
       range.from && range.to
         ? `${formatLongDate(range.from)} – ${formatLongDate(range.to)}`
         : "All dates",
-    yearToDate: isCurrentFyToDate(input.period, range.from, range.to),
+    yearToDate: isYearToDate(input.period, options),
     preparedLabel: `Prepared ${formatLongDate(preparedOn)}`,
     invoiced,
     cashJobs,
@@ -116,16 +115,6 @@ export function buildProfitLossStatement(input: StatementInput): ProfitLossState
     profit: profit(invoiced, totalExpenses, cashJobs),
     received: sumReceived(input.invoices),
   };
-}
-
-function isCurrentFyToDate(
-  period: PeriodFilter,
-  from: string | null,
-  to: string | null,
-): boolean {
-  if (period !== "fy" || !from || !to) return false;
-  const start = Number(from.slice(0, 4));
-  return to !== `${start + 1}-06-30`;
 }
 
 export function statementPdfFilename(statement: Pick<ProfitLossStatement, "periodLabel">): string {

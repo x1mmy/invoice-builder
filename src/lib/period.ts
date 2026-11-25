@@ -108,6 +108,25 @@ export function periodTitle(
   return "Last 12 months";
 }
 
+/** Current financial year ends today. A finished year still ends on 30 June. */
+function financialYearRange(start: number, now: Date) {
+  const from = `${start}-07-01`;
+  const fullEnd = `${start + 1}-06-30`;
+  const today = australianDateString(now);
+  const yearToDate = start === currentFyStartYear(now) && today < fullEnd;
+  return { from, to: yearToDate ? today : fullEnd, yearToDate };
+}
+
+export function isYearToDate(
+  period: PeriodFilter,
+  options: PeriodRangeOptions = {},
+): boolean {
+  if (period !== "fy") return false;
+  const now = options.now ?? new Date();
+  const start = options.fyStartYear ?? currentFyStartYear(now);
+  return financialYearRange(start, now).yearToDate;
+}
+
 /** Inclusive ISO date bounds (YYYY-MM-DD) for the selected period. */
 export function periodRange(
   period: PeriodFilter,
@@ -126,14 +145,8 @@ export function periodRange(
 
   if (period === "fy") {
     const start = options.fyStartYear ?? currentFyStartYear(now);
-    const from = `${start}-07-01`;
-    const fullEnd = `${start + 1}-06-30`;
-    const today = australianDateString(now);
-    const current = start === currentFyStartYear(now);
-    return {
-      from,
-      to: current && today >= from && today < fullEnd ? today : fullEnd,
-    };
+    const fy = financialYearRange(start, now);
+    return { from: fy.from, to: fy.to };
   }
 
   if (period === "year") {

@@ -1,5 +1,9 @@
 export type ExpenseKind = "operating" | "donation";
 
+export function expenseKind(kind: string | undefined): ExpenseKind {
+  return kind === "donation" ? "donation" : "operating";
+}
+
 export type ExpenseInput = {
   date: string;
   description: string;
@@ -36,7 +40,7 @@ export function parseExpenseInput(
       date: input.date,
       description: input.description.trim(),
       amount,
-      kind: input.kind === "donation" ? "donation" : "operating",
+      kind: expenseKind(input.kind),
       note,
     },
   };

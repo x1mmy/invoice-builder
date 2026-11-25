@@ -331,10 +331,7 @@ export function renderStatementPdf(pdf: jsPDF, statement: ProfitLossStatement): 
   y = moneyLine(pdf, y, "Total expenses", statement.totalExpenses, true);
   y += 3;
 
-  if (!fits(y, profitBlockHeight(pdf))) {
-    pdf.addPage();
-    y = drawContinuedHeader(pdf, statement);
-  }
+  if (!fits(y, profitBlockHeight(pdf))) beginPage();
   drawProfitBlock(pdf, y, statement);
   stampPageNumbers(pdf);
 }

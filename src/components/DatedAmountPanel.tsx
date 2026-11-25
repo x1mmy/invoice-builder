@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition, type FormEvent, type ReactNode } from "react";
 import { formatDisplayDate, formatMoney } from "@/lib/calc";
-import type { ExpenseKind } from "@/lib/expense-input";
+import { expenseKind, type ExpenseKind } from "@/lib/expense-input";
 import { australianDateString } from "@/lib/period";
 
 type Row = {
@@ -138,7 +138,7 @@ export function DatedAmountPanel({
     setEditDate(row.date);
     setEditDetails(row.description);
     setEditAmount(String(row.amount));
-    setEditKind(row.kind === "donation" ? "donation" : "operating");
+    setEditKind(expenseKind(row.kind));
     setEditNote(row.note ?? "");
   };
 
@@ -390,9 +390,7 @@ function KindField({
       <span className="text-xs font-medium text-stone-500">Type</span>
       <select
         value={value}
-        onChange={(e) =>
-          onChange(e.target.value === "donation" ? "donation" : "operating")
-        }
+        onChange={(e) => onChange(expenseKind(e.target.value))}
         className="min-h-11 w-full rounded-md border border-stone-300 bg-white px-3 py-2.5 text-sm"
       >
         <option value="operating">Operating expense</option>
@@ -418,6 +416,7 @@ function NoteField({
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        maxLength={240}
         placeholder="How it was paid. For example: prepaid ALDI Mobile recharge."
         className="min-h-11 w-full rounded-md border border-stone-300 px-3 py-2.5 text-sm"
       />
